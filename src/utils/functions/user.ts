@@ -1,0 +1,77 @@
+import {
+    UploadApiErrorResponse,
+    UploadApiResponse,
+    v2 as cloudinary,
+} from "cloudinary";
+import { Attributes, CreationAttributes, Op } from "sequelize";
+import sequalize from "../../db";
+import User from "../../models/User";
+import { UserDoesntExistsError } from "../error";
+export function sendAuthData(
+  user: Attributes<User> | CreationAttributes<User>
+): Omit<Attributes<User> | CreationAttributes<User>, "password" | "jwtid"> {
+  return (({ password, ...rest }) => rest)(user);
+}
+export async function checkIfUserExists(
+  userData: Attributes<User> | CreationAttributes<User>
+): Promise<Attributes<User> | CreationAttributes<User>> {
+  try {
+    return await sequalize.transaction(async (t) => {
+      const user = await User.findOne({
+        where: {
+          [Op.or]: {
+            email: userData.email,
+            userName: userData.userName,
+          },
+        },
+        transaction: t,
+      });
+      if (user instanceof User) {
+        return user.toJSON();
+      } else {
+        throw new UserDoesntExistsError("User doesnt exist");
+      }
+    });
+  } catch (err) {
+    throw err;
+  }
+}
+export async function createUser(
+  userData: Attributes<User> | CreationAttributes<User>
+): Promise<Attributes<User> | CreationAttributes<User>> {
+  try {
+    return await sequalize.transaction(async (t) => {
+      const user = await User.create(userData);
+      return user.toJSON();
+    });
+  } catch (err) {
+    throw err;
+  }
+}
+export function uploadProfilePicture(
+  userName: string,
+  buffer: Buffer
+): Promise<UploadApiResponse | UploadApiErrorResponse> {
+  return new Promise((res, rej) => {
+    cloudinary.uploader
+      .upload_stream(
+        {
+          public_id: userName,
+          folder: `hangouts/${userName}`,
+          overwrite: true,
+        },
+        (err, result) => {
+          if (err) {
+            rej(err);
+            return;
+          }
+          if (!result) {
+            rej("Not valid response from cloudinary");
+            return;
+          }
+          res(result);
+        }
+      )
+      .end(buffer);
+  });
+}
