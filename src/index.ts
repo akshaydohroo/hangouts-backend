@@ -2,7 +2,7 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
-import { port } from "./config";
+import { frontendBaseUrl, port } from "./config";
 import sequelize from "./db";
 import router from "./routes";
 import "./models/association";
@@ -10,7 +10,7 @@ const app: Application = express();
 const PORT = port || 8000;
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: frontendBaseUrl,
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
     methods: ["GET", "PUT", "POST"],

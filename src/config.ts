@@ -20,3 +20,4 @@ export const cloudinaryApiKey = process.env.CLOUDINARY_API_KEY;
 export const cloudinarySecretKey = process.env.CLOUDINARY_SECRET_KEY;
 export const nodemailerUser = process.env.NODEMAILER_USER;
 export const nodemailerPass = process.env.NODEMAILER_PASS;
+export const frontendBaseUrl = process.env.FRONTEND_BASE_URL as string;
