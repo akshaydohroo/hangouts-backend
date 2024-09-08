@@ -9,5 +9,8 @@ export default new Sequelize(
     host: dbHost,
     dialect: "postgres",
     port: Number(dbPort),
+    dialectOptions: {
+      connectTimeout: 60000, // 10 seconds timeout for connecting to the PostgreSQL server
+    },
   }
 );
