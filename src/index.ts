@@ -5,6 +5,7 @@ import express, { Application, NextFunction, Request, Response } from "express";
 import { port } from "./config";
 import sequelize from "./db";
 import router from "./routes";
+import "./models/association";
 const app: Application = express();
 const PORT = port || 8000;
 app.use(
@@ -21,7 +22,8 @@ app.use(bodyParser.json());
 app.use("/", router);
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err);
-  if (!res.statusCode) {
+
+  if (res.statusCode === 200) {
     res.status(500);
   }
   res.send(err.message);

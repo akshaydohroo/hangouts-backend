@@ -15,15 +15,15 @@ import { inputDateToDate, parseJwtToken } from "../utils/functions";
 import {
   createAccessToken,
   createRefreshToken,
+  generateNewAccessTokenFromRefreshToken,
   getGoogleUserData,
   googleSetRefreshTokenCookie,
   sendVerifyEmail,
-  generateNewAccessTokenFromRefreshToken,
 } from "../utils/functions/auth";
 import {
   checkIfUserExists,
   createUser,
-  uploadProfilePicture,
+  uploadPictureCloudinary,
 } from "../utils/functions/user";
 
 const oAuth2Client = new OAuth2Client(
@@ -90,9 +90,10 @@ export async function signin(req: Request, res: Response, next: NextFunction) {
       res.status(400);
       throw Error("Profile picture doesnt exist");
     }
-    const uploadPicture = await uploadProfilePicture(
+    const uploadPicture = await uploadPictureCloudinary(
       req.body.userName,
-      req.file.buffer
+      req.file.buffer,
+      req.body.userName
     );
     req.body.birthDate = inputDateToDate(req.body.birthDate);
     const userData = req.body as Attributes<User> | CreationAttributes<User>;
@@ -118,7 +119,7 @@ export async function signin(req: Request, res: Response, next: NextFunction) {
 }
 export async function login(req: Request, res: Response, next: NextFunction) {
   try {
-    if (!req.body.email || !req.body.userName) {
+    if (!req.body.email && !req.body.userName) {
       res.status(400);
       throw Error("No auth Id");
     }
@@ -153,7 +154,30 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     res.clearCookie("google-refresh-oauth-token");
     createAccessToken(req, res, user.id);
     createRefreshToken(req, res, user.id);
+
     res.json({ message: "Success" });
+  } catch (err) {
+    next(err);
+  }
+}
+export async function logout(req: Request, res: Response, next: NextFunction) {
+  try {
+    res.clearCookie("access-token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+    res.clearCookie("refresh-token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+    res.clearCookie("google-refresh-oauth-token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+    res.json({ message: "success" });
   } catch (err) {
     next(err);
   }

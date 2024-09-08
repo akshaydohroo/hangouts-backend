@@ -1,12 +1,12 @@
 import { Router } from "express";
 import {
-  getAuthUserData,
-  getUserById
-} from "../controllers/user";
+  getNotificationByUserId,
+  deleteNotificationById,
+} from "../controllers/notification";
 import { protectRoutes } from "../utils/functions/auth";
 
 const router = Router({ mergeParams: true });
 router.use(protectRoutes);
-router.get("/data/:id", getUserById);
-router.get("/data", getAuthUserData);
+router.get("/user", getNotificationByUserId);
+router.get("/delete/:id", deleteNotificationById);
 export default router;

@@ -8,5 +8,6 @@ export default new Sequelize(
   {
     host: dbHost,
     dialect: "mysql",
+
   }
 );

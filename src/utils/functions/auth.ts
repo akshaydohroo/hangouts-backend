@@ -1,20 +1,19 @@
 import axios from "axios";
-import { UUID } from 'crypto';
+import { UUID } from "crypto";
 import { NextFunction, Request, Response } from "express";
 import { UserRefreshClient } from "google-auth-library";
 import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import { Attributes, CreationAttributes } from "sequelize";
 import {
-    googleOAuthClientId,
-    googleOAuthClientSecret,
-    jwtSecretKet,
+  googleOAuthClientId,
+  googleOAuthClientSecret,
+  jwtSecretKet,
 } from "../../config";
 import User from "../../models/User";
 import { convertTime, parseJwtToken } from ".";
 import Transport from "../transport";
 import { verifyMailConfig } from "../variables";
 import { AccessTokenDoesntExistError } from "../error";
-
 
 export function sendVerifyEmail(
   user: Attributes<User> | CreationAttributes<User>
@@ -41,30 +40,44 @@ export function protectRoutes(
   next: NextFunction
 ): void {
   try {
-    const accesstoken: string | undefined = req.cookies["access-token"];
-    if (!accesstoken) {
+    let accessToken: string | undefined = undefined;
+    if (req.headers.authorization) {
+      if (req.headers.authorization.split(" ")[0] !== "Bearer") {
+        res.status(400);
+        throw Error("Invalid autherization header");
+      }
+      accessToken = req.headers.authorization.split(" ")[1];
+    } else {
+      accessToken = req.cookies["access-token"];
+    }
+    if (!accessToken) {
       throw new AccessTokenDoesntExistError("Access token doesnt exist");
     }
-    const isVerified = jwt.verify(
-      accesstoken,
+    const { userId } = jwt.verify(
+      accessToken,
       Buffer.from(jwtSecretKet as string, "base64")
     ) as { userId: string };
-
+    res.locals.selfId = userId;
     next();
   } catch (err) {
     if (
       err instanceof TokenExpiredError ||
       err instanceof AccessTokenDoesntExistError
     ) {
-      const accessToken = generateNewAccessTokenFromRefreshToken(req, res);
-      req.cookies["access-token"] = accessToken;
-      next();
-    }
-    if (err instanceof JsonWebTokenError) {
+      generateNewAccessTokenFromRefreshToken(req, res)
+        .then((accessToken) => {
+          req.headers.authorization = accessToken;
+          next();
+        })
+        .catch((err) => {
+          next(err);
+        });
+    } else if (err instanceof JsonWebTokenError) {
       res.status(400);
       throw Error("Token is corrupted, please login again");
+    } else {
+      next(err);
     }
-    next(err);
   }
 }
 export async function googleOAuthRefresh(
@@ -81,7 +94,7 @@ export async function googleOAuthRefresh(
     const { refresh_token, id_token } = credentials;
     if (!refresh_token || !id_token) throw Error("Token undefined from google");
     googleSetRefreshTokenCookie(req, res, refresh_token);
-    return parseJwtToken(id_token, ["sub"], ["id"]).id as string;
+    return parseJwtToken(id_token, ["sub"], ["userId"]).userId as string;
   } catch (err) {
     throw err;
   }
@@ -134,16 +147,19 @@ export function googleSetRefreshTokenCookie(
     throw err;
   }
 }
-export async function generateNewAccessTokenFromRefreshToken(req: Request, res: Response) {
-  if (req.cookies && req.cookies["google-refresh-oauth-token"]) {
+export async function generateNewAccessTokenFromRefreshToken(
+  req: Request,
+  res: Response
+) {
+  if (req.cookies["google-refresh-oauth-token"]) {
     const userId = await googleOAuthRefresh(req, res);
-    createAccessToken(req, res, userId);
-  } else if (req.cookies && req.cookies["refresh-token"]) {
+    return createAccessToken(req, res, userId);
+  } else if (req.cookies["refresh-token"]) {
     const { userId } = jwt.verify(
       req.cookies["refresh-token"],
       Buffer.from(jwtSecretKet as string, "base64")
     ) as { userId: UUID };
-    createAccessToken(req, res, userId);
+    return createAccessToken(req, res, userId);
   } else {
     res.status(400);
     throw new Error("No refresh token found,Login again");
@@ -164,6 +180,7 @@ export function createAccessToken(req: Request, res: Response, userId: string) {
     secure: true,
     sameSite: "none",
   });
+  return accessToken;
 }
 export function createRefreshToken(
   req: Request,
@@ -171,7 +188,7 @@ export function createRefreshToken(
   userId: string
 ) {
   const refreshToken = jwt.sign(
-    { userId: userId },
+    { userId },
     Buffer.from(jwtSecretKet as string, "base64"),
     {
       expiresIn: "7d",

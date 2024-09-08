@@ -1,12 +1,9 @@
-import {
-    UploadApiErrorResponse,
-    UploadApiResponse,
-    v2 as cloudinary,
-} from "cloudinary";
+import { UploadApiErrorResponse, UploadApiResponse } from "cloudinary";
 import { Attributes, CreationAttributes, Op } from "sequelize";
 import sequalize from "../../db";
 import User from "../../models/User";
 import { UserDoesntExistsError } from "../error";
+import cloudinary from "../../cloudinary";
 export function sendAuthData(
   user: Attributes<User> | CreationAttributes<User>
 ): Omit<Attributes<User> | CreationAttributes<User>, "password" | "jwtid"> {
@@ -19,10 +16,7 @@ export async function checkIfUserExists(
     return await sequalize.transaction(async (t) => {
       const user = await User.findOne({
         where: {
-          [Op.or]: {
-            email: userData.email,
-            userName: userData.userName,
-          },
+          email: userData.email,
         },
         transaction: t,
       });
@@ -48,16 +42,18 @@ export async function createUser(
     throw err;
   }
 }
-export function uploadProfilePicture(
+export function uploadPictureCloudinary(
   userName: string,
-  buffer: Buffer
+  buffer: Buffer,
+  fileName: string,
+  path?: string
 ): Promise<UploadApiResponse | UploadApiErrorResponse> {
   return new Promise((res, rej) => {
     cloudinary.uploader
       .upload_stream(
         {
-          public_id: userName,
-          folder: `hangouts/${userName}`,
+          public_id: fileName,
+          folder: `hangouts/${userName}/${path}`,
           overwrite: true,
         },
         (err, result) => {
