@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import { dbHost, dbName, dbUser, dbPass } from "./config";
+import { dbHost, dbName, dbUser, dbPass, dbPort } from "./config";
 
 export default new Sequelize(
   dbName as string,
@@ -8,6 +8,6 @@ export default new Sequelize(
   {
     host: dbHost,
     dialect: "mysql",
-
+    port: Number(dbPort),
   }
 );

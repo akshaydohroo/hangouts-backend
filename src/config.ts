@@ -1,4 +1,7 @@
 import multer from "multer";
+import { configDotenv } from "dotenv";
+
+const env = configDotenv()
 export const hostDomainName = process.env.HOST_DOMAIN_NAME;
 export const port = process.env.PORT;
 export const googleOAuthClientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
