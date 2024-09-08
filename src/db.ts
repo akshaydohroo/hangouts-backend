@@ -7,7 +7,7 @@ export default new Sequelize(
   dbPass as string,
   {
     host: dbHost,
-    dialect: "mysql",
+    dialect: "postgres",
     port: Number(dbPort),
   }
 );
