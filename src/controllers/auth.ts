@@ -32,6 +32,14 @@ const oAuth2Client = new OAuth2Client(
   "postmessage"
 );
 
+/**
+ * Handles the Google OAuth process.
+ *
+ * @param req - The request object.
+ * @param res - The response object.
+ * @param next - The next function.
+ * @returns A Promise that resolves to void.
+ */
 export async function googleOAuth(
   req: Request,
   res: Response,
@@ -84,6 +92,15 @@ export async function googleOAuth(
   }
 }
 
+/**
+ * Sign in function for authenticating users.
+ *
+ * @param req - The request object.
+ * @param res - The response object.
+ * @param next - The next function.
+ * @returns Promise<void>
+ * @throws Error - If profile picture doesn't exist.
+ */
 export async function signin(req: Request, res: Response, next: NextFunction) {
   try {
     if (!req.file?.buffer) {
@@ -117,6 +134,14 @@ export async function signin(req: Request, res: Response, next: NextFunction) {
     next(err);
   }
 }
+/**
+ * Handles the login functionality.
+ *
+ * @param req - The request object.
+ * @param res - The response object.
+ * @param next - The next function.
+ * @returns Promise<void>
+ */
 export async function login(req: Request, res: Response, next: NextFunction) {
   try {
     if (!req.body.email && !req.body.userName) {
@@ -160,6 +185,14 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     next(err);
   }
 }
+/**
+ * Logs out the user by clearing the necessary cookies.
+ *
+ * @param req - The request object.
+ * @param res - The response object.
+ * @param next - The next function.
+ * @returns A JSON response with a success message.
+ */
 export async function logout(req: Request, res: Response, next: NextFunction) {
   try {
     res.clearCookie("access-token", {
@@ -182,6 +215,15 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
     next(err);
   }
 }
+/**
+ * Verifies the email using the provided token.
+ *
+ * @param req - The request object.
+ * @param res - The response object.
+ * @param next - The next function.
+ * @returns A JSON response with a success message.
+ * @throws An error if the token doesn't exist or if there is an error during the verification process.
+ */
 export async function verifyEmail(
   req: Request,
   res: Response,
@@ -211,6 +253,15 @@ export async function verifyEmail(
     next(err);
   }
 }
+/**
+ * Deletes a user based on the provided JWT token.
+ *
+ * @param req - The request object.
+ * @param res - The response object.
+ * @param next - The next function.
+ * @returns A JSON response indicating the success of the operation.
+ * @throws An error if the token is missing or invalid.
+ */
 export async function deleteUserByJwt(
   req: Request,
   res: Response,
@@ -238,6 +289,14 @@ export async function deleteUserByJwt(
   }
 }
 
+/**
+ * Generates a new access token from the refresh token.
+ *
+ * @param req - The request object.
+ * @param res - The response object.
+ * @param next - The next function.
+ * @returns A promise that resolves to the generated access token.
+ */
 export async function getNewAccessToken(
   req: Request,
   res: Response,

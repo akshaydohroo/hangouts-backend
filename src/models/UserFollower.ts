@@ -14,18 +14,54 @@ import sequelize from "../db";
 import Notification from "./Notification";
 import User from "./User";
 
+/**
+ * Class representing a UserFollower.
+ * @extends Model
+ */
 class UserFollower extends Model<
   InferAttributes<UserFollower>,
   InferCreationAttributes<UserFollower>
 > {
+  /**
+   * The unique identifier for the connection.
+   * @type {UUID}
+   */
   declare connectionId: UUID;
+
+  /**
+   * The ID of the user being followed.
+   * @type {ForeignKey<User["id"]>}
+   */
   declare userId: ForeignKey<User["id"]>;
+
+  /**
+   * The ID of the follower.
+   * @type {ForeignKey<User["id"]>}
+   */
   declare followerId: ForeignKey<User["id"]>;
+
+  /**
+   * The status of the connection (accepted or pending).
+   * @type {CreationOptional<"accepted" | "pending">}
+   */
   declare status: CreationOptional<"accepted" | "pending">;
+
+  /**
+   * The date and time when the connection was created.
+   * @type {CreationOptional<Date>}
+   */
   declare createdAt: CreationOptional<Date>;
+
+  /**
+   * The date and time when the connection was last updated.
+   * @type {CreationOptional<Date>}
+   */
   declare updatedAt: CreationOptional<Date>;
 }
 
+/**
+ * Initializes the UserFollower model.
+ */
 UserFollower.init(
   {
     connectionId: {
@@ -45,10 +81,26 @@ UserFollower.init(
   { sequelize, tableName: "user_followers", modelName: "connection" }
 );
 
+/**
+ * Hook that runs after a UserFollower instance is created.
+ * Creates a notification for the user being followed.
+ *
+ * @param {UserFollower} instance - The created UserFollower instance.
+ * @param {BulkCreateOptions<InferAttributes<UserFollower, { omit: never }>>} options - The creation options.
+ */
 UserFollower.afterCreate(async (instance: UserFollower, options) => {
-  const notification = await getNotificationCreationAttributes(instance,options);
+  const notification = await getNotificationCreationAttributes(instance, options);
   Notification.create(notification, { transaction: options.transaction });
 });
+
+/**
+ * Generates the attributes for creating a notification.
+ *
+ * @param {UserFollower} instance - The created UserFollower instance.
+ * @param {BulkCreateOptions<InferAttributes<UserFollower, { omit: never }>>} options - The creation options.
+ * @returns {Promise<CreationAttributes<Notification>>} - The notification creation attributes.
+ * @throws {Error} - If the sender profile is not found.
+ */
 async function getNotificationCreationAttributes(
   instance: UserFollower,
   options: BulkCreateOptions<

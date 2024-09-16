@@ -1,12 +1,21 @@
 import { NextFunction, Request, Response } from "express";
-import sequalize from "../db";
+import sequelize from "../db";
 import Notification, { NotificationType } from "../models/Notification";
 import User from "../models/User";
+
+/**
+ * Retrieves notifications for the authenticated user.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @param {NextFunction} next - The next middleware function.
+ * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+ */
 export async function getNotificationByUserId(
   req: Request,
   res: Response,
   next: NextFunction
-) {
+): Promise<void> {
   try {
     const selfId = res.locals.selfId as string;
     const page = Number(req.query.page);
@@ -15,7 +24,7 @@ export async function getNotificationByUserId(
       res.status(400);
       throw Error("No valid params");
     }
-    const { count, rows } = await sequalize.transaction(async (t) => {
+    const { count, rows } = await sequelize.transaction(async (t) => {
       const { count, rows } = await Notification.findAndCountAll({
         where: {
           userId: selfId,
@@ -44,11 +53,20 @@ export async function getNotificationByUserId(
     next(err);
   }
 }
+
+/**
+ * Deletes a notification by its ID for the authenticated user.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @param {NextFunction} next - The next middleware function.
+ * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+ */
 export async function deleteNotificationById(
   req: Request,
   res: Response,
   next: NextFunction
-) {
+): Promise<void> {
   try {
     if (!req.params.id) {
       res.status(400);
@@ -56,7 +74,7 @@ export async function deleteNotificationById(
     }
     const selfId = res.locals.selfId as string;
     const notificationId = req.params.id as string;
-    const notification = await sequalize.transaction(async (t) => {
+    await sequelize.transaction(async (t) => {
       return Notification.destroy({
         where: {
           notificationId,

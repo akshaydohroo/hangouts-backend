@@ -15,8 +15,10 @@ export async function checkIfUserExists(
   try {
     return await sequalize.transaction(async (t) => {
       const user = await User.findOne({
-        where: {
-          email: userData.email,
+        where: { [Op.or]: [
+          { email: userData.email },
+          { userName: userData.userName }
+        ]
         },
         transaction: t,
       });

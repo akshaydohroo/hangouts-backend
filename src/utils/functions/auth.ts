@@ -8,6 +8,7 @@ import {
   googleOAuthClientId,
   googleOAuthClientSecret,
   jwtSecretKet,
+  nodeEnv,
 } from "../../config";
 import User from "../../models/User";
 import { convertTime, parseJwtToken } from ".";
@@ -15,6 +16,12 @@ import Transport from "../transport";
 import { verifyMailConfig } from "../variables";
 import { AccessTokenDoesntExistError } from "../error";
 
+/**
+ * Sends a verification email to the user.
+ *
+ * @param {Attributes<User> | CreationAttributes<User>} user - The user object.
+ * @returns {Promise<string>} - A promise that resolves to the message ID of the sent email.
+ */
 export function sendVerifyEmail(
   user: Attributes<User> | CreationAttributes<User>
 ): Promise<string> {
@@ -34,6 +41,14 @@ export function sendVerifyEmail(
     });
   });
 }
+
+/**
+ * Middleware to protect routes by verifying the access token.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @param {NextFunction} next - The next middleware function.
+ */
 export function protectRoutes(
   req: Request,
   res: Response,
@@ -44,14 +59,14 @@ export function protectRoutes(
     if (req.headers.authorization) {
       if (req.headers.authorization.split(" ")[0] !== "Bearer") {
         res.status(400);
-        throw Error("Invalid autherization header");
+        throw Error("Invalid authorization header");
       }
       accessToken = req.headers.authorization.split(" ")[1];
     } else {
       accessToken = req.cookies["access-token"];
     }
     if (!accessToken) {
-      throw new AccessTokenDoesntExistError("Access token doesnt exist");
+      throw new AccessTokenDoesntExistError("Access token doesn't exist");
     }
     const { userId } = jwt.verify(
       accessToken,
@@ -80,6 +95,14 @@ export function protectRoutes(
     }
   }
 }
+
+/**
+ * Refreshes the Google OAuth token.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @returns {Promise<string>} - A promise that resolves to the user ID.
+ */
 export async function googleOAuthRefresh(
   req: Request,
   res: Response
@@ -92,13 +115,20 @@ export async function googleOAuthRefresh(
     );
     const { credentials } = await user.refreshAccessToken();
     const { refresh_token, id_token } = credentials;
-    if (!refresh_token || !id_token) throw Error("Token undefined from google");
+    if (!refresh_token || !id_token) throw Error("Token undefined from Google");
     googleSetRefreshTokenCookie(req, res, refresh_token);
     return parseJwtToken(id_token, ["sub"], ["userId"]).userId as string;
   } catch (err) {
     throw err;
   }
 }
+
+/**
+ * Retrieves Google user data using the access token.
+ *
+ * @param {string} accessToken - The access token.
+ * @returns {Promise<{ gender: undefined | string; birthDate: undefined | Date; emailVerified: boolean; }>} - A promise that resolves to the user data.
+ */
 export async function getGoogleUserData(accessToken: string): Promise<{
   gender: undefined | string;
   birthDate: undefined | Date;
@@ -131,6 +161,14 @@ export async function getGoogleUserData(accessToken: string): Promise<{
     throw err;
   }
 }
+
+/**
+ * Sets the Google OAuth refresh token cookie.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @param {string} refreshToken - The refresh token.
+ */
 export function googleSetRefreshTokenCookie(
   req: Request,
   res: Response,
@@ -140,17 +178,25 @@ export function googleSetRefreshTokenCookie(
     res.cookie("google-refresh-oauth-token", refreshToken, {
       maxAge: convertTime(7, "d", "ms"),
       httpOnly: true,
-      secure: true,
+      secure: nodeEnv === 'production',
       sameSite: "none",
     });
   } catch (err) {
     throw err;
   }
 }
+
+/**
+ * Generates a new access token from the refresh token.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @returns {Promise<string>} - A promise that resolves to the new access token.
+ */
 export async function generateNewAccessTokenFromRefreshToken(
   req: Request,
   res: Response
-) {
+): Promise<string> {
   if (req.cookies["google-refresh-oauth-token"]) {
     const userId = await googleOAuthRefresh(req, res);
     return createAccessToken(req, res, userId);
@@ -162,11 +208,19 @@ export async function generateNewAccessTokenFromRefreshToken(
     return createAccessToken(req, res, userId);
   } else {
     res.status(400);
-    throw new Error("No refresh token found,Login again");
+    throw new Error("No refresh token found, login again");
   }
 }
 
-export function createAccessToken(req: Request, res: Response, userId: string) {
+/**
+ * Creates a new access token and sets it as a cookie.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @param {string} userId - The user ID.
+ * @returns {string} - The new access token.
+ */
+export function createAccessToken(req: Request, res: Response, userId: string): string {
   const accessToken = jwt.sign(
     { userId },
     Buffer.from(jwtSecretKet as string, "base64"),
@@ -177,16 +231,20 @@ export function createAccessToken(req: Request, res: Response, userId: string) {
   res.cookie("access-token", accessToken, {
     maxAge: convertTime(1, "hr", "ms"),
     httpOnly: true,
-    secure: true,
+    secure: nodeEnv === "production",
     sameSite: "none",
   });
   return accessToken;
 }
-export function createRefreshToken(
-  req: Request,
-  res: Response,
-  userId: string
-) {
+
+/**
+ * Creates a new refresh token and sets it as a cookie.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @param {string} userId - The user ID.
+ */
+export function createRefreshToken(req: Request, res: Response, userId: string): void {
   const refreshToken = jwt.sign(
     { userId },
     Buffer.from(jwtSecretKet as string, "base64"),
@@ -197,7 +255,7 @@ export function createRefreshToken(
   res.cookie("refresh-token", refreshToken, {
     maxAge: convertTime(7, "d", "ms"),
     httpOnly: true,
-    secure: true,
+    secure: nodeEnv == "production",
     sameSite: "none",
   });
 }

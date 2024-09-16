@@ -1,3 +1,10 @@
+/**
+ * Parses a JWT token and extracts specified fields from the token payload.
+ * @param token - The JWT token to parse.
+ * @param fields - An array of fields to extract from the token payload.
+ * @param newFields - An array of new field names to assign to the extracted fields.
+ * @returns An object containing the extracted fields as key-value pairs.
+ */
 export function parseJwtToken(
   token: string,
   fields: Array<string>,
@@ -16,6 +23,12 @@ export function parseJwtToken(
   return result;
 }
 
+/**
+ * Converts a JavaScript regular expression to a MySQL regular expression.
+ *
+ * @param jsRegExp - The JavaScript regular expression to convert.
+ * @returns The MySQL regular expression.
+ */
 export function convertToMySQLRegExp(jsRegExp: RegExp): string {
   // Escape special characters
   const escapedPattern = jsRegExp.source.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -26,6 +39,15 @@ export function convertToMySQLRegExp(jsRegExp: RegExp): string {
   return `(?${flags}:${escapedPattern})`;
 }
 
+/**
+ * Converts a time value from one unit to another.
+ *
+ * @param value - The value to be converted.
+ * @param fromUnit - The unit of the value to be converted from.
+ * @param toUnit - The unit to convert the value to.
+ * @returns The converted value.
+ * @throws Error if the provided time units are invalid.
+ */
 export function convertTime(
   value: number,
   fromUnit: string,
