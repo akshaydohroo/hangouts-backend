@@ -3,7 +3,7 @@ import { rng, numUsers as numUsersRaw } from "./variables";
 
 const numUsers: number = Number(numUsersRaw);
 import seedrandom from "seedrandom";
-import User from "src/models/User";
+import User from "../../models/User";
 import {
   Attributes,
   CreationAttributes,

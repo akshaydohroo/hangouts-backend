@@ -1,6 +1,4 @@
 import Mail from "nodemailer/lib/mailer";
-import { Attributes, CreationAttributes } from "sequelize";
-import User from "src/models/User";
 
 export const DBpopulateMailConfig
  = (

@@ -1,10 +1,10 @@
 import { Attributes, CreationAttributes } from "sequelize";
-import User from "src/models/User";
-import UserFollower from "src/models/UserFollower";
+import User from "../../models/User";
+import UserFollower from "../../models/UserFollower";
 import { randomUUID } from "crypto";
 import { users } from "./users";
 import { rng } from "./variables";
-import Notification from "src/models/Notification";
+import Notification from "../../models/Notification";
 
 // Function to generate a random status
 function getRandomStatus() {
