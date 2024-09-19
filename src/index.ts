@@ -7,6 +7,9 @@ import sequelize from "./db";
 import router from "./routes";
 import "./models/association";
 import { populateDB } from "./data/scripts/populateDB";
+import dotenv from "dotenv";
+dotenv.config();
+
 const app: Application = express();
 const PORT = port || 8000;
 app.use(
