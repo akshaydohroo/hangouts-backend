@@ -1,12 +1,12 @@
 import { Sequelize } from "sequelize";
-import { users } from "./users.js";
-import User from "src/models/User.js";
-import { followersArray,followerNotifications } from "./userFollowers.js";
+import { users } from "./users";
+import User from "src/models/User";
+import { followersArray,followerNotifications } from "./userFollowers";
 import UserFollower from "src/models/UserFollower";
 import Notification from "src/models/Notification"; // Import the correct Notification model
-import transport from "src/utils/transport.js";
-import { cryptoPasswordIV, cryptoPasswordKey, nodemailerUser } from "src/config.js";
-import { DBpopulateMailConfig } from "./DBPopulateMail.js";
+import transport from "src/utils/transport";
+import { cryptoPasswordIV, cryptoPasswordKey, nodemailerUser } from "src/config";
+import { DBpopulateMailConfig } from "./DBPopulateMail";
 import crypto from "crypto-js";
 export function encryptPassword(password: string): string {
   return crypto.AES.encrypt(
