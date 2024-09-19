@@ -2,7 +2,7 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
-import { frontendBaseUrl, hostDomainName, port } from "./config";
+import { frontendBaseUrl, hostDomainName, nodeEnv, port } from "./config";
 import sequelize from "./db";
 import router from "./routes";
 import "./models/association";
@@ -37,7 +37,7 @@ try {
     sequelize
       .authenticate()
       .then(() => {
-         return populateDB(sequelize.sync({force:false}));
+         return populateDB(sequelize.sync({force:nodeEnv === "production"}));
       })
       .then((status) => {
         console.log("Database connection has been established successfully.");
