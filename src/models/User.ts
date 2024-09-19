@@ -14,6 +14,9 @@ import Notification from "./Notification";
 import Story from "./Story";
 import UserFollower from "./UserFollower";
 
+
+export type UserVisibility = "public" | "private";
+
 /**
  * Interface representing a User with a follower connection.
  * @extends User
@@ -48,6 +51,12 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
    * @type {CreationOptional<string>}
    */
   declare password: CreationOptional<string>;
+
+  /**
+   * The password of the user.
+   * @type {CreationOptional<string>}
+   */
+  declare visibility: CreationOptional<string>;
 
   /**
    * The birth date of the user.
@@ -167,6 +176,11 @@ User.init(
       defaultValue: false,
       allowNull: false,
     },
+    visibility:{
+      type: DataTypes.ENUM("public", "private"),
+      defaultValue: "public",
+      allowNull: false
+    }
   },
   { sequelize, tableName: "users" }
 );

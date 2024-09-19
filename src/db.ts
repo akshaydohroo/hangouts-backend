@@ -12,5 +12,6 @@ export default new Sequelize(
     dialectOptions: {
       connectTimeout: 60000, // 10 seconds timeout for connecting to the PostgreSQL server
     },
+    logging: false,
   }
 );

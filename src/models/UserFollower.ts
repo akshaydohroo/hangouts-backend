@@ -89,8 +89,19 @@ UserFollower.init(
  * @param {BulkCreateOptions<InferAttributes<UserFollower, { omit: never }>>} options - The creation options.
  */
 UserFollower.afterCreate(async (instance: UserFollower, options) => {
-  const notification = await getNotificationCreationAttributes(instance, options);
-  Notification.create(notification, { transaction: options.transaction });
+  try {
+    const notification = await getNotificationCreationAttributes(
+      instance,
+      options
+    );
+    await Notification.create(notification, {
+      transaction: options.transaction,
+    });
+  } catch (err) {
+    // Handle the error appropriately
+    console.error("Error creating notification:", err);
+    throw err;
+  }
 });
 
 /**
@@ -120,8 +131,12 @@ async function getNotificationCreationAttributes(
 
   return {
     notificationId: randomUUID(),
-    notificationType: "follow",
-    notificationMessage: `${sender.userName} wants to follow you.`,
+    notificationType:
+      instance.dataValues.status === "pending" ? "follow" : "notify",
+    notificationMessage:
+      instance.dataValues.status === "pending"
+        ? `${sender.userName} wants to follow you.`
+        : `${sender.userName} follow you now.`,
     userId: instance.dataValues.userId,
     senderId: instance.dataValues.followerId,
     cause: "user",

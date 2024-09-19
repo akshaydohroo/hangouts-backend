@@ -171,7 +171,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       res.status(400);
       throw Error("User didnt signin with a password");
     }
-    const isAuthenticated = await bcrypt.compare(password, user.password);
+    const isAuthenticated = password === user.password;
     if (!isAuthenticated) {
       res.status(401);
       throw Error("User is not authenticated");

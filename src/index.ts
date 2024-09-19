@@ -2,10 +2,11 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
-import { frontendBaseUrl, port } from "./config";
+import { frontendBaseUrl, hostDomainName, port } from "./config";
 import sequelize from "./db";
 import router from "./routes";
 import "./models/association";
+import { populateDB } from "./data/scripts/populateDB";
 const app: Application = express();
 const PORT = port || 8000;
 app.use(
@@ -33,13 +34,17 @@ try {
     sequelize
       .authenticate()
       .then(() => {
-        return sequelize.sync({});
+         return populateDB(sequelize.sync({force:false}));
+      })
+      .then((status) => {
+        console.log("Database connection has been established successfully.");
+        console.log(status);
       })
       .then(() => {
-        console.log(`Server Running here 👉 https://localhost:${PORT}`);
+        console.log(`Server Running here 👉 http://${hostDomainName}:${PORT}`);
       })
       .catch((err) => {
-        throw err;
+        console.error("Unable to connect to the database:", err);
       });
   });
 } catch (err) {

@@ -3,6 +3,7 @@ import sequelize from "../db";
 import User from "../models/User";
 import UserFollower from "../models/UserFollower";
 import { randomUUID } from "crypto";
+import { getUserById } from "./user";
 
 /**
  * Handles a user connection request.
@@ -21,11 +22,19 @@ export async function userConnectRequest(
     const selfId = res.locals.selfId as string;
     const followingId = req.params.id;
     const connectionId = await sequelize.transaction(async (t) => {
-      await UserFollower.create({
-        userId: followingId,
-        followerId: selfId,
-        connectionId: randomUUID(),
-      }, { transaction: t });
+      const followingUser = await User.findByPk(followingId, {
+        transaction: t,
+      });
+      await UserFollower.create(
+        {
+          userId: followingId,
+          followerId: selfId,
+          connectionId: randomUUID(),
+          status:
+            followingUser?.visibility === "private" ? "pending" : "accepted",
+        },
+        { transaction: t }
+      );
     });
     res.json({ id: connectionId });
   } catch (err) {
@@ -125,7 +134,7 @@ export async function getFollowingUsers(
       throw new Error("Invalid request");
     }
     const { rows, count } = await sequelize.transaction(async (t) => {
-      const { rows, count } = await User.findAndCountAll({
+      const result = await User.findAndCountAll({
         include: {
           model: User,
           as: "followers",
@@ -141,11 +150,9 @@ export async function getFollowingUsers(
           attributes: [],
         },
         attributes: ["id", "name", "userName", "picture"],
-        // offset: (page - 1) * limit,
-        // limit: limit,
         transaction: t,
       });
-      return { rows, count };
+      return result;
     });
     res.json({
       count,

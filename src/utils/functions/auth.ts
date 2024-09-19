@@ -2,19 +2,21 @@ import axios from "axios";
 import { UUID } from "crypto";
 import { NextFunction, Request, Response } from "express";
 import { UserRefreshClient } from "google-auth-library";
-import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { Attributes, CreationAttributes } from "sequelize";
 import {
   googleOAuthClientId,
   googleOAuthClientSecret,
   jwtSecretKet,
-  nodeEnv,
 } from "../../config";
 import User from "../../models/User";
 import { convertTime, parseJwtToken } from ".";
 import Transport from "../transport";
 import { verifyMailConfig } from "../variables";
 import { AccessTokenDoesntExistError } from "../error";
+
+
+const { JsonWebTokenError, TokenExpiredError } = jwt;
 
 /**
  * Sends a verification email to the user.
@@ -178,7 +180,7 @@ export function googleSetRefreshTokenCookie(
     res.cookie("google-refresh-oauth-token", refreshToken, {
       maxAge: convertTime(7, "d", "ms"),
       httpOnly: true,
-      secure: nodeEnv === 'production',
+      secure:  true,
       sameSite: "none",
     });
   } catch (err) {
@@ -231,7 +233,7 @@ export function createAccessToken(req: Request, res: Response, userId: string): 
   res.cookie("access-token", accessToken, {
     maxAge: convertTime(1, "hr", "ms"),
     httpOnly: true,
-    secure: nodeEnv === "production",
+    secure: true,
     sameSite: "none",
   });
   return accessToken;
@@ -255,7 +257,7 @@ export function createRefreshToken(req: Request, res: Response, userId: string):
   res.cookie("refresh-token", refreshToken, {
     maxAge: convertTime(7, "d", "ms"),
     httpOnly: true,
-    secure: nodeEnv == "production",
+    secure: true,
     sameSite: "none",
   });
 }

@@ -90,10 +90,8 @@ export async function getFollowOptions(
       const { count, rows } = await User.findAndCountAll({
         where: {
           [Op.or]: [
-            { "$User.name$": { [Op.regexp]: `(?i:^${searchString})` } },
-            { "$User.userName$": { [Op.regexp]: `(?i:^${searchString})` } },
-            literal(`'${searchString}%' SOUNDS LIKE User.name COLLATE utf8mb4_general_ci`),
-            literal(`'${searchString}%' SOUNDS LIKE User.userName COLLATE utf8mb4_general_ci`),
+            { name: { [Op.iRegexp]: `^${searchString}` } },
+            { userName: { [Op.iRegexp]: `^${searchString}` } },
           ],
           id: { [Op.ne]: selfId },
         },
@@ -114,7 +112,6 @@ export async function getFollowOptions(
       });
       return { count, rows };
     });
-
     res.json({
       count,
       rows: rows.map((row) => {

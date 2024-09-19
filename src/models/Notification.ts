@@ -22,13 +22,14 @@ export type NotificationType =
   | "comment"
   | "follow"
   | "message"
-  | "reaction";
+  | "reaction"
+  | "notify";
 
 /**
  * Type representing the different causes of notifications.
  * @typedef {"post" | "story" | "comment"} NotificationCause
  */
-export type NotificationCause = "post" | "story" | "comment";
+export type NotificationCause = "post" | "story" | "comment" | "user";
 
 /**
  * Class representing a Notification.
@@ -108,7 +109,7 @@ class Notification extends Model<
    * The cause of the notification.
    * @type {string}
    */
-  declare cause: string;
+  declare cause: NotificationCause;
 
   /**
    * The ID of the cause of the notification.
@@ -128,7 +129,14 @@ Notification.init(
       defaultValue: DataTypes.UUIDV4,
     },
     notificationType: {
-      type: DataTypes.ENUM("like", "comment", "follow", "message", "reaction"),
+      type: DataTypes.ENUM(
+        "like",
+        "comment",
+        "follow",
+        "message",
+        "reaction",
+        "notify"
+      ),
       allowNull: false,
     },
     createdAt: DataTypes.DATE,
