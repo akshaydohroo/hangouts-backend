@@ -39,8 +39,6 @@ export async function getNotificationByUserId(
           as: "sender",
         },
       });
-      console.log(rows);
-      console.log(count);
 
       return { count, rows };
     });

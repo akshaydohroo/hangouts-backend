@@ -5,9 +5,9 @@ import { followersArray,followerNotifications } from "./userFollowers";
 import UserFollower from "../../models/UserFollower";
 import Notification from "../../models/Notification"; // Import the correct Notification model
 import transport from "../../utils/transport";
-import { nodemailerUser } from "../../config";
+import { nodeEnv, nodemailerUser } from "../../config";
 import { DBpopulateMailConfig } from "./DBPopulateMail";
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 export function populateDB(sequelize: Promise<Sequelize>): Promise<String> {
   return new Promise((resolve, reject) => {
@@ -16,6 +16,7 @@ export function populateDB(sequelize: Promise<Sequelize>): Promise<String> {
     })
       .then((userCount) => {
         if(userCount > 10) throw Error("Database already populated");
+        if(nodeEnv === "development") return new Promise<void>((resolve) => resolve());
         return transport.sendMail(
           DBpopulateMailConfig(
             nodemailerUser as string,

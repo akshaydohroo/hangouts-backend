@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { NextFunction, Request, Response } from "express";
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
@@ -117,7 +117,6 @@ export async function signin(req: Request, res: Response, next: NextFunction) {
     userData.picture = uploadPicture.secure_url;
 
     userData.password = await bcrypt.hash(userData.password as string, 10);
-    console.log("auth password    " + userData.password)
     const user = await createUser(userData);
     sendVerifyEmail(user)
       .then((val) => {
@@ -172,8 +171,6 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       res.status(400);
       throw Error("User didnt signin with a password");
     }
-    await bcrypt.hash(password, 10).then((val) => { console.log("login password   "+val) });
-    console.log(user.password)
     const isAuthenticated = await bcrypt.compare(password, user.password);
     if (!isAuthenticated) {
       res.status(401);
