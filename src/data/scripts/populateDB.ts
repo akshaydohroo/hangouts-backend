@@ -8,15 +8,8 @@ import transport from "../../utils/transport";
 import { cryptoPasswordIV, cryptoPasswordKey, nodemailerUser } from "../../config";
 import { DBpopulateMailConfig } from "./DBPopulateMail";
 import crypto from "crypto-js";
-export function encryptPassword(password: string): string {
-  return crypto.AES.encrypt(
-    password,
-    crypto.enc.Base64.parse(cryptoPasswordKey as string),
-    {
-      iv: crypto.enc.Base64.parse(cryptoPasswordIV as string),
-    }
-  ).toString();
-}
+import bcrypt from 'bcrypt';
+
 export function populateDB(sequelize: Promise<Sequelize>): Promise<String> {
   return new Promise((resolve, reject) => {
     sequelize.then(() => {
@@ -38,12 +31,11 @@ export function populateDB(sequelize: Promise<Sequelize>): Promise<String> {
         );
       })
       .then(() => {
-        users.forEach((user) => {
-          console.log(user.userName);
-          console.log(user.password);
-          user.password = encryptPassword(user.password || "");
-          console.log(user.password);
-        });
+        return Promise.all(users.map(async (user) => {
+          user.password = await bcrypt.hash(user.password as string, 10);
+          return user;
+        }));
+      }).then((users) => {
         return User.bulkCreate(users);
       })
       .then(() => {
