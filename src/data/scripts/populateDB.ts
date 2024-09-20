@@ -5,9 +5,8 @@ import { followersArray,followerNotifications } from "./userFollowers";
 import UserFollower from "../../models/UserFollower";
 import Notification from "../../models/Notification"; // Import the correct Notification model
 import transport from "../../utils/transport";
-import { cryptoPasswordIV, cryptoPasswordKey, nodemailerUser } from "../../config";
+import { nodemailerUser } from "../../config";
 import { DBpopulateMailConfig } from "./DBPopulateMail";
-import crypto from "crypto-js";
 import bcrypt from 'bcrypt';
 
 export function populateDB(sequelize: Promise<Sequelize>): Promise<String> {
