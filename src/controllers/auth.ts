@@ -179,7 +179,6 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     res.clearCookie("google-refresh-oauth-token");
     createAccessToken(req, res, user.id);
     createRefreshToken(req, res, user.id);
-
     res.json({ message: "Success" });
   } catch (err) {
     next(err);

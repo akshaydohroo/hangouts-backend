@@ -1,4 +1,4 @@
-import { Sequelize } from "sequelize";
+import { Sequelize } from 'sequelize'
 import {
   dbHost,
   dbName,
@@ -7,33 +7,33 @@ import {
   dbPort,
   nodeEnv,
   dbUrl,
-} from "./config";
+} from './config'
 
 // Create a new Sequelize instance
-let sequelize: Sequelize;
-if (nodeEnv === "development") {
+let sequelize: Sequelize
+if (nodeEnv === 'development') {
   sequelize = new Sequelize(
     dbName as string,
     dbUser as string,
     dbPass as string,
     {
       host: dbHost,
-      dialect: "postgres",
+      dialect: 'postgres',
       port: Number(dbPort),
       dialectOptions: {
         connectTimeout: 60000, // 10 seconds timeout for connecting to the PostgreSQL server
       },
-      logging: true,
+      logging: false,
     }
-  );
+  )
 } else {
-sequelize = new Sequelize(dbUrl, {
-  dialect: "postgres",
-  ssl: true,
-  logging: true,
-  dialectOptions: {
-    connectTimeout: 60000, // 10 seconds timeout for connecting to the PostgreSQL server
-  },
-});
+  sequelize = new Sequelize(dbUrl, {
+    dialect: 'postgres',
+    ssl: true,
+    logging: true,
+    dialectOptions: {
+      connectTimeout: 60000, // 10 seconds timeout for connecting to the PostgreSQL server
+    },
+  })
 }
-export default sequelize;
+export default sequelize

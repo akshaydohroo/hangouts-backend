@@ -37,7 +37,7 @@ try {
     sequelize
       .authenticate()
       .then(() => {
-         return populateDB(sequelize.sync({force:nodeEnv==="development"}));
+         return populateDB(sequelize.sync({}));
       })
       .then((status) => {
         console.log("Database connection has been established successfully.");
