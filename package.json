@@ -58,7 +58,7 @@
     "dev": "nodemon --watch 'src/**/*.ts' --exec 'tsx --require dotenv/config' src/index.ts",
     "start": "tsx --require dotenv/config src/index.ts",
     "build": "webpack",
-    "prepare": "[[ $RENDER == true ]] || husky install"
+    "prepare": "sh -c 'test \"$RENDER\" = \"true\" || husky install'"
   },
   "engines": {
     "node": "22.8.0"
