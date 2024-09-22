@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getUsers } from 'src/controllers/user'
+import { getUsers } from '../controllers/user'
 
 const router = Router({ mergeParams: true })
 
