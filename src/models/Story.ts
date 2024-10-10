@@ -1,4 +1,4 @@
-import { UUID } from "crypto";
+import { UUID } from 'crypto'
 import {
   BelongsToCreateAssociationMixin,
   BelongsToGetAssociationMixin,
@@ -9,9 +9,9 @@ import {
   InferCreationAttributes,
   Model,
   NonAttribute,
-} from "sequelize";
-import sequelize from "../db";
-import User from "./User";
+} from 'sequelize'
+import sequelize from '../db'
+import User from './User'
 
 /**
  * Class representing a Story.
@@ -25,61 +25,61 @@ class Story extends Model<
    * The unique identifier for the story.
    * @type {UUID}
    */
-  declare storyId: UUID;
+  declare storyId: UUID
 
   /**
    * The ID of the user who created the story.
    * @type {ForeignKey<User["id"]>}
    */
-  declare userId: ForeignKey<User["id"]>;
+  declare userId: ForeignKey<User['id']>
 
   /**
    * The URL of the picture associated with the story.
    * @type {string}
    */
-  declare picture: string;
+  declare picture: string
 
   /**
    * The number of times the story has been seen.
    * @type {CreationOptional<number>}
    */
-  declare seenCount: CreationOptional<number>;
+  declare seenCount: CreationOptional<number>
 
   /**
    * The number of likes the story has received.
    * @type {CreationOptional<number>}
    */
-  declare likes: CreationOptional<number>;
+  declare likes: CreationOptional<number>
 
   /**
    * Gets the user associated with the story.
    * @type {BelongsToGetAssociationMixin<User>}
    */
-  declare getUser: BelongsToGetAssociationMixin<User>;
+  declare getUser: BelongsToGetAssociationMixin<User>
 
   /**
    * Creates a user association for the story.
    * @type {BelongsToCreateAssociationMixin<User>}
    */
-  declare createUser: BelongsToCreateAssociationMixin<User>;
+  declare createUser: BelongsToCreateAssociationMixin<User>
 
   /**
    * The user associated with the story.
    * @type {NonAttribute<User>}
    */
-  declare user?: NonAttribute<User>;
+  declare user?: NonAttribute<User>
 
   /**
    * The date and time when the story was created.
    * @type {CreationOptional<Date>}
    */
-  declare createdAt: CreationOptional<Date>;
+  declare createdAt: CreationOptional<Date>
 
   /**
    * The date and time when the story was last updated.
    * @type {CreationOptional<Date>}
    */
-  declare updatedAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>
 }
 
 /**
@@ -109,8 +109,8 @@ Story.init(
       defaultValue: 0,
     },
   },
-  { sequelize, tableName: "stories" }
-);
+  { sequelize, tableName: 'stories' }
+)
 
 /**
  * Hook that runs before a Story instance is created.
@@ -125,12 +125,12 @@ Story.beforeCreate(async (instance: Story, options) => {
     where: {
       userId: instance.userId,
     },
-    group: ["userId"],
+    group: ['userId'],
     transaction: options.transaction,
-  });
+  })
   if (count.length === 5) {
-    throw Error("User can't have more than 5 stories at a time");
+    throw Error("User can't have more than 5 stories at a time")
   }
-});
+})
 
-export default Story;
+export default Story

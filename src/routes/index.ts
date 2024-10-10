@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response, Router } from 'express'
 import authRoutes from './auth'
 import followRoutes from './follow'
-import userRoutes from './user'
+import guestRoutes from './guest'
 import notificationRoutes from './notification'
 import storyRoutes from './story'
-import guestRoutes from './guest'
+import userRoutes from './user'
 const router = Router()
 
 router.use((req: Request, res: Response, next: NextFunction) => {

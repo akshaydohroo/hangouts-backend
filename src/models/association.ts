@@ -1,8 +1,8 @@
-import Notification from "./Notification";
-import Story from "./Story";
-import StoryInteraction from "./StoryInteraction";
-import User from "./User";
-import UserFollower from "./UserFollower";
+import Notification from './Notification'
+import Story from './Story'
+import StoryInteraction from './StoryInteraction'
+import User from './User'
+import UserFollower from './UserFollower'
 
 /**
  * Establishes a many-to-many relationship between User and User through UserFollower.
@@ -10,12 +10,12 @@ import UserFollower from "./UserFollower";
  */
 User.belongsToMany(User, {
   through: UserFollower,
-  foreignKey: "userId",
-  otherKey: "followerId",
-  as: "followers",
-  targetKey: "id",
-  sourceKey: "id",
-});
+  foreignKey: 'userId',
+  otherKey: 'followerId',
+  as: 'followers',
+  targetKey: 'id',
+  sourceKey: 'id',
+})
 
 /**
  * Establishes a many-to-many relationship between User and User through UserFollower.
@@ -23,12 +23,12 @@ User.belongsToMany(User, {
  */
 User.belongsToMany(User, {
   through: UserFollower,
-  foreignKey: "followerId",
-  otherKey: "userId",
-  as: "follows",
-  targetKey: "id",
-  sourceKey: "id",
-});
+  foreignKey: 'followerId',
+  otherKey: 'userId',
+  as: 'follows',
+  targetKey: 'id',
+  sourceKey: 'id',
+})
 
 /**
  * Establishes a one-to-many relationship between User and Notification.
@@ -37,11 +37,11 @@ User.belongsToMany(User, {
 User.hasMany(Notification, {
   foreignKey: {
     allowNull: false,
-    name: "userId",
+    name: 'userId',
   },
-  sourceKey: "id",
-  as: "notifications",
-});
+  sourceKey: 'id',
+  as: 'notifications',
+})
 
 /**
  * Establishes a many-to-one relationship between Notification and User.
@@ -50,11 +50,11 @@ User.hasMany(Notification, {
 Notification.belongsTo(User, {
   foreignKey: {
     allowNull: false,
-    name: "userId",
+    name: 'userId',
   },
-  targetKey: "id",
-  as: "user",
-});
+  targetKey: 'id',
+  as: 'user',
+})
 
 /**
  * Establishes a one-to-many relationship between User and Notification.
@@ -63,11 +63,11 @@ Notification.belongsTo(User, {
 User.hasMany(Notification, {
   foreignKey: {
     allowNull: false,
-    name: "senderId",
+    name: 'senderId',
   },
-  sourceKey: "id",
-  as: "activities",
-});
+  sourceKey: 'id',
+  as: 'activities',
+})
 
 /**
  * Establishes a many-to-one relationship between Notification and User.
@@ -76,11 +76,11 @@ User.hasMany(Notification, {
 Notification.belongsTo(User, {
   foreignKey: {
     allowNull: false,
-    name: "senderId",
+    name: 'senderId',
   },
-  targetKey: "id",
-  as: "sender",
-});
+  targetKey: 'id',
+  as: 'sender',
+})
 
 /**
  * Establishes a one-to-many relationship between User and Story.
@@ -89,11 +89,11 @@ Notification.belongsTo(User, {
 User.hasMany(Story, {
   foreignKey: {
     allowNull: false,
-    name: "userId",
+    name: 'userId',
   },
-  sourceKey: "id",
-  as: "stories",
-});
+  sourceKey: 'id',
+  as: 'stories',
+})
 
 /**
  * Establishes a many-to-one relationship between Story and User.
@@ -102,11 +102,11 @@ User.hasMany(Story, {
 Story.belongsTo(User, {
   foreignKey: {
     allowNull: false,
-    name: "userId",
+    name: 'userId',
   },
-  targetKey: "id",
-  as: "user",
-});
+  targetKey: 'id',
+  as: 'user',
+})
 
 /**
  * Establishes a many-to-many relationship between Story and User through StoryInteraction.
@@ -115,13 +115,13 @@ Story.belongsTo(User, {
 Story.belongsToMany(User, {
   foreignKey: {
     allowNull: false,
-    name: "storyId",
+    name: 'storyId',
   },
-  targetKey: "id",
-  sourceKey: "storyId",
+  targetKey: 'id',
+  sourceKey: 'storyId',
   through: StoryInteraction,
-  as: "viewers",
-});
+  as: 'viewers',
+})
 
 /**
  * Establishes a many-to-many relationship between User and Story through StoryInteraction.
@@ -130,10 +130,10 @@ Story.belongsToMany(User, {
 User.belongsToMany(Story, {
   foreignKey: {
     allowNull: false,
-    name: "viewerId",
+    name: 'viewerId',
   },
-  targetKey: "storyId",
-  sourceKey: "id",
+  targetKey: 'storyId',
+  sourceKey: 'id',
   through: StoryInteraction,
-  as: "viewed_stories",
-});
+  as: 'viewed_stories',
+})

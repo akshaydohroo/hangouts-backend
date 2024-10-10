@@ -1,9 +1,3 @@
-import { UUID, randomUUID } from "crypto";
-import { Transaction } from "sequelize";
-import Notification, {
-  NotificationCause,
-  NotificationType,
-} from "../../models/Notification";
 // export async function createNotification(
 //   userId: string,
 //   senderId: string,

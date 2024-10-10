@@ -1,19 +1,19 @@
-import Mail from "nodemailer/lib/mailer";
-import { Attributes, CreationAttributes } from "sequelize";
-import { hostDomainName, port } from "../config";
-import User from "../models/User";
+import Mail from 'nodemailer/lib/mailer'
+import { Attributes, CreationAttributes } from 'sequelize'
+import { hostDomainName, port } from '../config'
+import User from '../models/User'
 
 export const verifyMailConfig = (
   user: Attributes<User> | CreationAttributes<User>,
   verifyJwt: string
 ): Mail.Options => {
   try {
-    const verifyUrl = `http://${hostDomainName}:${port}/auth/verify-email/${verifyJwt}`;
-    const delUrl = `http://${hostDomainName}:${port}/auth/del/${verifyJwt}`;
+    const verifyUrl = `http://${hostDomainName}:${port}/auth/verify-email/${verifyJwt}`
+    const delUrl = `http://${hostDomainName}:${port}/auth/del/${verifyJwt}`
     return {
-      from: "hangouts.india3@gmail.com",
+      from: 'hangouts.india3@gmail.com',
       to: user.email,
-      subject: "Email Verification",
+      subject: 'Email Verification',
       text: `Verify email by clicking on the link given below
     --->
     ${verifyUrl}
@@ -34,13 +34,13 @@ export const verifyMailConfig = (
 
       attachments: [
         {
-          filename: "email-verify",
+          filename: 'email-verify',
           path: `${process.cwd()}/src/assets/images/mail-verify.jpg`,
-          cid: "email-verify",
+          cid: 'email-verify',
         },
       ],
-    };
+    }
   } catch (err) {
-    throw err;
+    throw err
   }
-};
+}

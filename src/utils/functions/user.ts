@@ -1,9 +1,9 @@
-import { UploadApiErrorResponse, UploadApiResponse } from "cloudinary";
-import { Attributes, CreationAttributes, Op } from "sequelize";
-import sequalize from "../../db";
-import User from "../../models/User";
-import { UserDoesntExistsError } from "../error";
-import cloudinary from "../../cloudinary";
+import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary'
+import { Attributes, CreationAttributes, Op } from 'sequelize'
+import cloudinary from '../../cloudinary'
+import sequalize from '../../db'
+import User from '../../models/User'
+import { UserDoesntExistsError } from '../error'
 /**
  * Sends authentication data for a user.
  *
@@ -12,8 +12,8 @@ import cloudinary from "../../cloudinary";
  */
 export function sendAuthData(
   user: Attributes<User> | CreationAttributes<User>
-): Omit<Attributes<User> | CreationAttributes<User>, "password" | "jwtid"> {
-  return (({ password, ...rest }) => rest)(user);
+): Omit<Attributes<User> | CreationAttributes<User>, 'password' | 'jwtid'> {
+  return (({ password, ...rest }) => rest)(user)
 }
 
 /**
@@ -26,25 +26,21 @@ export async function checkIfUserExists(
   userData: Attributes<User> | CreationAttributes<User>
 ): Promise<Attributes<User> | CreationAttributes<User>> {
   try {
-    return await sequalize.transaction(async (t) => {
-      const email = userData.email || '';
-      const userName = userData.userName || '';
+    return await sequalize.transaction(async t => {
+      const email = userData.email || ''
+      const userName = userData.userName || ''
       const user = await User.findOne({
-        where: { [Op.or]: [
-          { email },
-          { userName }
-        ]
-        },
+        where: { [Op.or]: [{ email }, { userName }] },
         transaction: t,
-      });
+      })
       if (user instanceof User) {
-        return user.toJSON();
+        return user.toJSON()
       } else {
-        throw new UserDoesntExistsError("User doesnt exist");
+        throw new UserDoesntExistsError('User doesnt exist')
       }
-    });
+    })
   } catch (err) {
-    throw err;
+    throw err
   }
 }
 /**
@@ -58,12 +54,12 @@ export async function createUser(
   userData: Attributes<User> | CreationAttributes<User>
 ): Promise<Attributes<User> | CreationAttributes<User>> {
   try {
-    return await sequalize.transaction(async (t) => {
-      const user = await User.create(userData);
-      return user.toJSON();
-    });
+    return await sequalize.transaction(async t => {
+      const user = await User.create(userData)
+      return user.toJSON()
+    })
   } catch (err) {
-    throw err;
+    throw err
   }
 }
 /**
@@ -91,16 +87,16 @@ export function uploadPictureCloudinary(
         },
         (err, result) => {
           if (err) {
-            rej(err);
-            return;
+            rej(err)
+            return
           }
           if (!result) {
-            rej("Not valid response from cloudinary");
-            return;
+            rej('Not valid response from cloudinary')
+            return
           }
-          res(result);
+          res(result)
         }
       )
-      .end(buffer);
-  });
+      .end(buffer)
+  })
 }

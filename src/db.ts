@@ -2,11 +2,11 @@ import { Sequelize } from 'sequelize'
 import {
   dbHost,
   dbName,
-  dbUser,
   dbPass,
   dbPort,
-  nodeEnv,
   dbUrl,
+  dbUser,
+  nodeEnv,
 } from './config'
 
 // Create a new Sequelize instance

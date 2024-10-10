@@ -1,56 +1,56 @@
-import bodyParser from "body-parser";
-import cookieParser from "cookie-parser";
-import cors from "cors";
-import express, { Application, NextFunction, Request, Response } from "express";
-import { frontendBaseUrl, hostDomainName, nodeEnv, port } from "./config";
-import sequelize from "./db";
-import router from "./routes";
-import "./models/association";
-import { populateDB } from "./data/scripts/populateDB";
-import dotenv from "dotenv";
-dotenv.config();
+import bodyParser from 'body-parser'
+import cookieParser from 'cookie-parser'
+import cors from 'cors'
+import dotenv from 'dotenv'
+import express, { Application, NextFunction, Request, Response } from 'express'
+import { frontendBaseUrl, hostDomainName, port } from './config'
+import { populateDB } from './data/scripts/populateDB'
+import sequelize from './db'
+import './models/association'
+import router from './routes'
+dotenv.config()
 
-const app: Application = express();
-const PORT = port || 8000;
+const app: Application = express()
+const PORT = port || 8000
 app.use(
   cors({
     origin: frontendBaseUrl,
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
-    methods: ["GET", "PUT", "POST"],
+    methods: ['GET', 'PUT', 'POST'],
   })
-);
-app.use(cookieParser());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use("/", router);
+)
+app.use(cookieParser())
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
+app.use('/', router)
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err);
+  console.error(err)
 
   if (res.statusCode === 200) {
-    res.status(500);
+    res.status(500)
   }
-  res.send(err.message);
-});
+  res.send(err.message)
+})
 try {
   app.listen(PORT, (): void => {
     sequelize
       .authenticate()
       .then(() => {
-         return populateDB(sequelize.sync({}));
+        return populateDB(sequelize.sync({}))
       })
-      .then((status) => {
-        console.log("Database connection has been established successfully.");
-        console.log(status);
+      .then(status => {
+        console.log('Database connection has been established successfully.')
+        console.log(status)
       })
       .then(() => {
-        console.log(`Server Running here 👉 http://${hostDomainName}:${PORT}`);
+        console.log(`Server Running here 👉 http://${hostDomainName}:${PORT}`)
       })
-      .catch((err) => {
-        console.error("Unable to connect to the database:", err);
-      });
-  });
+      .catch(err => {
+        console.error('Unable to connect to the database:', err)
+      })
+  })
 } catch (err) {
-  console.error(err);
+  console.error(err)
 }
-export default app;
+export default app

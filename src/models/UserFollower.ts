@@ -1,6 +1,5 @@
-import { UUID, randomUUID } from "crypto";
+import { UUID, randomUUID } from 'crypto'
 import {
-  Attributes,
   BulkCreateOptions,
   CreationAttributes,
   CreationOptional,
@@ -9,10 +8,10 @@ import {
   InferAttributes,
   InferCreationAttributes,
   Model,
-} from "sequelize";
-import sequelize from "../db";
-import Notification from "./Notification";
-import User from "./User";
+} from 'sequelize'
+import sequelize from '../db'
+import Notification from './Notification'
+import User from './User'
 
 /**
  * Class representing a UserFollower.
@@ -26,37 +25,37 @@ class UserFollower extends Model<
    * The unique identifier for the connection.
    * @type {UUID}
    */
-  declare connectionId: UUID;
+  declare connectionId: UUID
 
   /**
    * The ID of the user being followed.
    * @type {ForeignKey<User["id"]>}
    */
-  declare userId: ForeignKey<User["id"]>;
+  declare userId: ForeignKey<User['id']>
 
   /**
    * The ID of the follower.
    * @type {ForeignKey<User["id"]>}
    */
-  declare followerId: ForeignKey<User["id"]>;
+  declare followerId: ForeignKey<User['id']>
 
   /**
    * The status of the connection (accepted or pending).
    * @type {CreationOptional<"accepted" | "pending">}
    */
-  declare status: CreationOptional<"accepted" | "pending">;
+  declare status: CreationOptional<'accepted' | 'pending'>
 
   /**
    * The date and time when the connection was created.
    * @type {CreationOptional<Date>}
    */
-  declare createdAt: CreationOptional<Date>;
+  declare createdAt: CreationOptional<Date>
 
   /**
    * The date and time when the connection was last updated.
    * @type {CreationOptional<Date>}
    */
-  declare updatedAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>
 }
 
 /**
@@ -73,13 +72,13 @@ UserFollower.init(
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
     status: {
-      type: DataTypes.ENUM("accepted", "pending"),
+      type: DataTypes.ENUM('accepted', 'pending'),
       allowNull: false,
-      defaultValue: "pending",
+      defaultValue: 'pending',
     },
   },
-  { sequelize, tableName: "user_followers", modelName: "connection" }
-);
+  { sequelize, tableName: 'user_followers', modelName: 'connection' }
+)
 
 /**
  * Hook that runs after a UserFollower instance is created.
@@ -93,16 +92,16 @@ UserFollower.afterCreate(async (instance: UserFollower, options) => {
     const notification = await getNotificationCreationAttributes(
       instance,
       options
-    );
+    )
     await Notification.create(notification, {
       transaction: options.transaction,
-    });
+    })
   } catch (err) {
     // Handle the error appropriately
-    console.error("Error creating notification:", err);
-    throw err;
+    console.error('Error creating notification:', err)
+    throw err
   }
-});
+})
 
 /**
  * Generates the attributes for creating a notification.
@@ -118,30 +117,30 @@ async function getNotificationCreationAttributes(
     InferAttributes<
       UserFollower,
       {
-        omit: never;
+        omit: never
       }
     >
   >
 ): Promise<CreationAttributes<Notification>> {
   const sender = await User.findByPk(instance.dataValues.followerId, {
-    attributes: ["userName", "name"],
+    attributes: ['userName', 'name'],
     transaction: options.transaction,
-  });
-  if (!sender) throw Error("Sender profile not found");
+  })
+  if (!sender) throw Error('Sender profile not found')
 
   return {
     notificationId: randomUUID(),
     notificationType:
-      instance.dataValues.status === "pending" ? "follow" : "notify",
+      instance.dataValues.status === 'pending' ? 'follow' : 'notify',
     notificationMessage:
-      instance.dataValues.status === "pending"
+      instance.dataValues.status === 'pending'
         ? `${sender.userName} wants to follow you.`
         : `${sender.userName} follow you now.`,
     userId: instance.dataValues.userId,
     senderId: instance.dataValues.followerId,
-    cause: "user",
+    cause: 'user',
     causeId: instance.dataValues.followerId,
-  };
+  }
 }
 
-export default UserFollower;
+export default UserFollower

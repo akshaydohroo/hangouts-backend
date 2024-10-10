@@ -1,4 +1,4 @@
-import { UUID } from "crypto";
+import { UUID } from 'crypto'
 import {
   CreationAttributes,
   CreationOptional,
@@ -8,11 +8,11 @@ import {
   InferCreationAttributes,
   Model,
   UpdateOptions,
-} from "sequelize";
-import sequelize from "../db";
-import Notification from "./Notification";
-import Story from "./Story";
-import User from "./User";
+} from 'sequelize'
+import sequelize from '../db'
+import Notification from './Notification'
+import Story from './Story'
+import User from './User'
 
 /**
  * Class representing a StoryInteraction.
@@ -26,43 +26,43 @@ class StoryInteraction extends Model<
    * The unique identifier for the interaction.
    * @type {UUID}
    */
-  declare interactionId: UUID;
+  declare interactionId: UUID
 
   /**
    * The ID of the story associated with the interaction.
    * @type {ForeignKey<Story["storyId"]>}
    */
-  declare storyId: ForeignKey<Story["storyId"]>;
+  declare storyId: ForeignKey<Story['storyId']>
 
   /**
    * The ID of the user who viewed or interacted with the story.
    * @type {ForeignKey<User["id"]>}
    */
-  declare viewerId: ForeignKey<User["id"]>;
+  declare viewerId: ForeignKey<User['id']>
 
   /**
    * Indicates whether the interaction is a like.
    * @type {CreationOptional<boolean>}
    */
-  declare isLike: CreationOptional<boolean>;
+  declare isLike: CreationOptional<boolean>
 
   /**
    * The emoji used for the reaction.
    * @type {CreationOptional<string>}
    */
-  declare reactionEmoji: CreationOptional<string>;
+  declare reactionEmoji: CreationOptional<string>
 
   /**
    * The date and time when the interaction was created.
    * @type {CreationOptional<Date>}
    */
-  declare createdAt: CreationOptional<Date>;
+  declare createdAt: CreationOptional<Date>
 
   /**
    * The date and time when the interaction was last updated.
    * @type {CreationOptional<Date>}
    */
-  declare updatedAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>
 }
 
 /**
@@ -85,8 +85,8 @@ StoryInteraction.init(
     },
     reactionEmoji: DataTypes.STRING(4),
   },
-  { sequelize, tableName: "story_interactions", modelName: "interaction" }
-);
+  { sequelize, tableName: 'story_interactions', modelName: 'interaction' }
+)
 
 /**
  * Hook that runs after a StoryInteraction instance is updated.
@@ -107,47 +107,47 @@ StoryInteraction.afterUpdate(
         storyId,
         reactionEmoji,
         isLike,
-      } = instance.dataValues;
+      } = instance.dataValues
 
       if (
-        instance.changed("reactionEmoji") ||
-        (instance.changed("isLike") && isLike)
+        instance.changed('reactionEmoji') ||
+        (instance.changed('isLike') && isLike)
       ) {
         const story = await Story.findByPk(storyId, {
           transaction: options.transaction,
-        });
-        if (!story) throw Error("Story couldn't be found");
+        })
+        if (!story) throw Error("Story couldn't be found")
 
-        const userId = story.dataValues.userId;
+        const userId = story.dataValues.userId
         const notificationCreationAttributes = {
           userId,
           senderId,
           causeId: storyId,
-          cause: "story",
-        } as CreationAttributes<Notification>;
+          cause: 'story',
+        } as CreationAttributes<Notification>
 
         const sender = await User.findByPk(senderId, {
-          attributes: ["name", "userName"],
+          attributes: ['name', 'userName'],
           transaction: options.transaction,
-        });
-        if (!sender) throw Error("No sender found");
+        })
+        if (!sender) throw Error('No sender found')
 
-        if (instance.changed("reactionEmoji")) {
-          notificationCreationAttributes.notificationType = "reaction";
-          notificationCreationAttributes.notificationMessage = `${sender.userName} reacted ${reactionEmoji} on your story.`;
+        if (instance.changed('reactionEmoji')) {
+          notificationCreationAttributes.notificationType = 'reaction'
+          notificationCreationAttributes.notificationMessage = `${sender.userName} reacted ${reactionEmoji} on your story.`
         } else {
-          notificationCreationAttributes.notificationType = "like";
-          notificationCreationAttributes.notificationMessage = `${sender.userName} liked your story.`;
+          notificationCreationAttributes.notificationType = 'like'
+          notificationCreationAttributes.notificationMessage = `${sender.userName} liked your story.`
         }
 
         Notification.create(notificationCreationAttributes, {
           transaction: options.transaction,
-        });
+        })
       }
     } catch (err) {
-      throw err;
+      throw err
     }
   }
-);
+)
 
-export default StoryInteraction;
+export default StoryInteraction

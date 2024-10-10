@@ -1,25 +1,23 @@
-import Mail from "nodemailer/lib/mailer";
+import Mail from 'nodemailer/lib/mailer'
 
-export const DBpopulateMailConfig
- = (
+export const DBpopulateMailConfig = (
   mailID: string,
-  usersData: { userName: string; password: string }[],
+  usersData: { userName: string; password: string }[]
 ): Mail.Options => {
   try {
-
     return {
       from: mailID,
       to: mailID,
-      subject: "Dummy Users Data",
+      subject: 'Dummy Users Data',
       text: `Dummy Users Data`,
       attachments: [
         {
-          filename: "Dummy_Users_Data.json",
+          filename: 'Dummy_Users_Data.json',
           content: JSON.stringify(usersData),
         },
       ],
-    };
+    }
   } catch (err) {
-    throw err;
+    throw err
   }
-};
+}
