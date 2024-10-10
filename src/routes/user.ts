@@ -1,5 +1,4 @@
 import { Router } from 'express'
-import { multerUpload } from 'src/config'
 import {
   checkUserExists,
   getAuthUserData,
@@ -7,6 +6,7 @@ import {
   updateUserData,
 } from '../controllers/user'
 import { protectRoutes } from '../utils/functions/auth'
+import { multerUpload } from './../config'
 
 const router = Router({ mergeParams: true })
 router.get('/exists', checkUserExists)
