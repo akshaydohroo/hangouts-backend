@@ -197,17 +197,17 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
     res.clearCookie('access-token', {
       httpOnly: true,
       secure: true,
-      sameSite: 'none',
+      sameSite: 'lax',
     })
     res.clearCookie('refresh-token', {
       httpOnly: true,
       secure: true,
-      sameSite: 'none',
+      sameSite: 'lax',
     })
     res.clearCookie('google-refresh-oauth-token', {
       httpOnly: true,
       secure: true,
-      sameSite: 'none',
+      sameSite: 'lax',
     })
     res.json({ message: 'success' })
   } catch (err) {

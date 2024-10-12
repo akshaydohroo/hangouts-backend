@@ -180,7 +180,7 @@ export function googleSetRefreshTokenCookie(
       maxAge: convertTime(7, 'd', 'ms'),
       httpOnly: true,
       secure: true,
-      sameSite: 'none',
+      sameSite: 'lax',
     })
   } catch (err) {
     throw err
@@ -237,7 +237,7 @@ export function createAccessToken(
     maxAge: convertTime(1, 'hr', 'ms'),
     httpOnly: true,
     secure: true,
-    sameSite: 'none',
+    sameSite: 'lax',
   })
   return accessToken
 }
@@ -265,6 +265,6 @@ export function createRefreshToken(
     maxAge: convertTime(7, 'd', 'ms'),
     httpOnly: true,
     secure: true,
-    sameSite: 'none',
+    sameSite: 'lax',
   })
 }
