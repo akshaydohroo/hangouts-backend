@@ -80,6 +80,9 @@ export function protectRoutes(
       err instanceof TokenExpiredError ||
       err instanceof AccessTokenDoesntExistError
     ) {
+      if (req.headers['x-refresh-token']) {
+        res.locals.refreshToken = req.headers['x-refresh-token']
+      }
       generateNewAccessTokenFromRefreshToken(req, res)
         .then(accessToken => {
           req.headers.authorization = accessToken
@@ -207,6 +210,12 @@ export async function generateNewAccessTokenFromRefreshToken(
       Buffer.from(jwtSecretKet as string, 'base64')
     ) as { userId: UUID }
     return createAccessToken(req, res, userId)
+  } else if (res.locals.refreshToken) {
+    const { userId } = jwt.verify(
+      res.locals.refreshToken,
+      Buffer.from(jwtSecretKet as string, 'base64')
+    ) as { userId: UUID }
+    return createAccessToken(req, res, userId)
   } else {
     res.status(400)
     throw new Error('No refresh token found, login again')
@@ -253,7 +262,7 @@ export function createRefreshToken(
   req: Request,
   res: Response,
   userId: string
-): void {
+): string {
   const refreshToken = jwt.sign(
     { userId },
     Buffer.from(jwtSecretKet as string, 'base64'),
@@ -267,4 +276,5 @@ export function createRefreshToken(
     secure: true,
     sameSite: 'none',
   })
+  return refreshToken
 }

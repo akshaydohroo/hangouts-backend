@@ -84,9 +84,11 @@ export async function googleOAuth(
       } else throw err
     }
     res.clearCookie('refresh-token')
-    createAccessToken(req, res, user.id)
+    const accessToken = createAccessToken(req, res, user.id)
     googleSetRefreshTokenCookie(req, res, refresh_token)
-    res.status(201).json({ message: 'Success' })
+    res
+      .status(201)
+      .json({ accessToken: accessToken, refreshToken: refresh_token })
   } catch (err) {
     next(err)
   }
@@ -127,9 +129,9 @@ export async function signin(req: Request, res: Response, next: NextFunction) {
         return
       })
     res.clearCookie('google-refresh-oauth-token')
-    createAccessToken(req, res, user.id)
-    createRefreshToken(req, res, user.id)
-    res.status(201).json({ message: 'Success' })
+    const accessToken = createAccessToken(req, res, user.id)
+    const refreshToken = createRefreshToken(req, res, user.id)
+    res.status(201).json({ accessToken, refreshToken })
   } catch (err) {
     next(err)
   }
@@ -177,9 +179,9 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       throw Error('User is not authenticated')
     }
     res.clearCookie('google-refresh-oauth-token')
-    createAccessToken(req, res, user.id)
-    createRefreshToken(req, res, user.id)
-    res.json({ message: 'Success' })
+    const accessToken = createAccessToken(req, res, user.id)
+    const refreshToken = createRefreshToken(req, res, user.id)
+    res.json({ accessToken, refreshToken })
   } catch (err) {
     next(err)
   }

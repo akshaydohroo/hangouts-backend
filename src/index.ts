@@ -20,7 +20,7 @@ const PORT = port || 8000
 app.use(
   cors({
     origin: [frontendBaseUrl1, frontendBaseUrl2],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-refresh-token'],
     credentials: true,
     methods: ['GET', 'PUT', 'POST'],
   })
