@@ -3,7 +3,12 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import express, { Application, NextFunction, Request, Response } from 'express'
-import { frontendBaseUrl, hostDomainName, port } from './config'
+import {
+  frontendBaseUrl1,
+  frontendBaseUrl2,
+  hostDomainName,
+  port,
+} from './config'
 import { populateDB } from './data/scripts/populateDB'
 import sequelize from './db'
 import './models/association'
@@ -14,7 +19,7 @@ const app: Application = express()
 const PORT = port || 8000
 app.use(
   cors({
-    origin: frontendBaseUrl,
+    origin: [frontendBaseUrl1, frontendBaseUrl2],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
     methods: ['GET', 'PUT', 'POST'],
