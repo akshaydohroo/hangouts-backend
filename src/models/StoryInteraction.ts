@@ -85,7 +85,11 @@ StoryInteraction.init(
     },
     reactionEmoji: DataTypes.STRING(4),
   },
-  { sequelize, tableName: 'story_interactions', modelName: 'interaction' }
+  {
+    sequelize,
+    tableName: 'story_interactions',
+    modelName: 'story_interactions',
+  }
 )
 
 /**

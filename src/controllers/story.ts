@@ -120,7 +120,7 @@ export async function getStories(
           userId: selfId,
         },
         include: {
-          model: StoryInteraction,
+          model: User,
           as: 'viewers',
         },
         transaction: t,
