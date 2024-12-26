@@ -1,9 +1,9 @@
 import bcrypt from 'bcryptjs'
 import { Sequelize } from 'sequelize'
-import StoryInteraction from 'src/models/StoryInteraction'
 import { nodeEnv, nodemailerUser } from '../../config'
 import Notification from '../../models/Notification' // Import the correct Notification model
 import Story from '../../models/Story'
+import StoryInteraction from '../../models/StoryInteraction'
 import User from '../../models/User'
 import UserFollower from '../../models/UserFollower'
 import transport from '../../utils/transport'

@@ -1,5 +1,4 @@
 import { Router } from 'express'
-import { processChunks } from 'src/utils/functions'
 import { multerUpload } from '../config'
 import {
   createUserStory,
@@ -11,6 +10,7 @@ import {
   reactFollowingStory,
   viewFollowingUserStory,
 } from '../controllers/story'
+import { processChunks } from '../utils/functions'
 import { protectRoutes } from '../utils/functions/auth'
 
 const router = Router({ mergeParams: true })

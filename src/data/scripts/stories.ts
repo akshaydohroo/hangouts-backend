@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto'
 import { Attributes, CreationAttributes } from 'sequelize'
-import StoryInteraction from 'src/models/StoryInteraction'
 import Story from '../../models/Story'
+import StoryInteraction from '../../models/StoryInteraction'
 import User from '../../models/User'
 import { users } from './users'
 import { rng } from './variables'
