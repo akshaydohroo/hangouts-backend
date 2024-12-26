@@ -33,21 +33,17 @@ export async function getFollowingUsersWithStories(
           where: {
             [Op.or]: [
               sequelize.literal(`EXISTS (
-                SELECT 1 FROM user_followers AS connection
-                WHERE
-                  connection."followerId" = '${selfId}'
-                  AND connection."userId" = "User"."id"
-                  AND connection."status" = 'accepted'
-              )`),
+          SELECT 1 FROM user_followers AS connection
+          WHERE
+            connection."followerId" = '${selfId}'
+            AND connection."userId" = "User"."id"
+            AND connection."status" = 'accepted'
+          )`),
               { visibility: 'public' },
             ],
           },
           attributes: ['id', 'name', 'userName', 'picture'],
           include: [
-            {
-              model: User,
-              as: 'followers',
-            },
             {
               model: Story,
               as: 'stories',

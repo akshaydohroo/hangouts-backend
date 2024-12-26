@@ -42,7 +42,7 @@ try {
     sequelize
       .authenticate()
       .then(() => {
-        return populateDB(sequelize.sync({ force: true }))
+        return populateDB(sequelize.sync({}))
       })
       .then(status => {
         console.log('Database connection has been established successfully.')
