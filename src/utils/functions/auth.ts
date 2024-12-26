@@ -8,7 +8,7 @@ import { convertTime, parseJwtToken } from '.'
 import {
   googleOAuthClientId,
   googleOAuthClientSecret,
-  jwtSecretKet,
+  jwtSecretKey,
 } from '../../config'
 import User from '../../models/User'
 import { AccessTokenDoesntExistError } from '../error'
@@ -28,7 +28,7 @@ export function sendVerifyEmail(
 ): Promise<string> {
   const verifyJwt = jwt.sign(
     { email: user.email },
-    Buffer.from(jwtSecretKet as string, 'base64'),
+    Buffer.from(jwtSecretKey as string, 'base64'),
     {
       expiresIn: '1h',
     }
@@ -71,7 +71,7 @@ export function protectRoutes(
     }
     const { userId } = jwt.verify(
       accessToken,
-      Buffer.from(jwtSecretKet as string, 'base64')
+      Buffer.from(jwtSecretKey as string, 'base64')
     ) as { userId: string }
     res.locals.selfId = userId
     next()
@@ -207,13 +207,13 @@ export async function generateNewAccessTokenFromRefreshToken(
   } else if (req.cookies['refresh-token']) {
     const { userId } = jwt.verify(
       req.cookies['refresh-token'],
-      Buffer.from(jwtSecretKet as string, 'base64')
+      Buffer.from(jwtSecretKey as string, 'base64')
     ) as { userId: UUID }
     return createAccessToken(req, res, userId)
   } else if (res.locals.refreshToken) {
     const { userId } = jwt.verify(
       res.locals.refreshToken,
-      Buffer.from(jwtSecretKet as string, 'base64')
+      Buffer.from(jwtSecretKey as string, 'base64')
     ) as { userId: UUID }
     return createAccessToken(req, res, userId)
   } else {
@@ -237,7 +237,7 @@ export function createAccessToken(
 ): string {
   const accessToken = jwt.sign(
     { userId },
-    Buffer.from(jwtSecretKet as string, 'base64'),
+    Buffer.from(jwtSecretKey as string, 'base64'),
     {
       expiresIn: '20m',
     }
@@ -265,7 +265,7 @@ export function createRefreshToken(
 ): string {
   const refreshToken = jwt.sign(
     { userId },
-    Buffer.from(jwtSecretKet as string, 'base64'),
+    Buffer.from(jwtSecretKey as string, 'base64'),
     {
       expiresIn: '7d',
     }

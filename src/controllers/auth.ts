@@ -6,7 +6,7 @@ import { Attributes, CreationAttributes } from 'sequelize'
 import {
   googleOAuthClientId,
   googleOAuthClientSecret,
-  jwtSecretKet,
+  jwtSecretKey,
 } from '../config'
 import sequalize from '../db'
 import User from '../models/User'
@@ -237,7 +237,7 @@ export async function verifyEmail(
     }
     const token = jwt.verify(
       req.params.token,
-      Buffer.from(jwtSecretKet as string, 'base64')
+      Buffer.from(jwtSecretKey as string, 'base64')
     ) as { email: string }
     await sequalize.transaction(async t => {
       User.update(
@@ -275,7 +275,7 @@ export async function deleteUserByJwt(
     }
     const token = jwt.verify(
       req.params.token,
-      Buffer.from(jwtSecretKet as string, 'base64')
+      Buffer.from(jwtSecretKey as string, 'base64')
     ) as { email: string }
     await sequalize.transaction(async t => {
       User.destroy({
