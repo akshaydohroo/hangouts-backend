@@ -150,12 +150,14 @@ export async function getFollowingUsers(
         },
         attributes: ['id', 'name', 'userName', 'picture'],
         transaction: t,
+        limit,
+        offset: (page - 1) * limit,
       })
       return result
     })
     res.json({
       count,
-      rows: rows.slice((page - 1) * limit, (page - 1) * limit + limit),
+      rows,
       totalPages: Math.ceil(count / limit),
     })
   } catch (err) {

@@ -85,8 +85,8 @@ export function protectRoutes(
       }
       generateNewAccessTokenFromRefreshToken(req, res)
         .then(accessToken => {
-          req.headers.authorization = accessToken
-          next()
+          req.headers.authorization = 'Bearer ' + accessToken
+          protectRoutes(req, res, next)
         })
         .catch(err => {
           next(err)

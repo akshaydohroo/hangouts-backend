@@ -84,7 +84,7 @@ export async function deleteNotificationById(
         transaction: t,
       })
     })
-    res.json({ status: 'Success' })
+    res.json({ status: 'success' })
   } catch (err) {
     next(err)
   }

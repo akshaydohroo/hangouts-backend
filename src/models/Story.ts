@@ -13,6 +13,7 @@ import {
 import sequelize from '../db'
 import User from './User'
 
+export type UserWithStories = User & { stories: Story[] }
 /**
  * Class representing a Story.
  * @extends Model
@@ -128,7 +129,7 @@ Story.beforeCreate(async (instance: Story, options) => {
     group: ['userId'],
     transaction: options.transaction,
   })
-  if (count.length === 5) {
+  if (count.length >= 5) {
     throw Error("User can't have more than 5 stories at a time")
   }
 })

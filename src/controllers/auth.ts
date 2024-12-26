@@ -249,7 +249,7 @@ export async function verifyEmail(
         }
       )
     })
-    res.json({ message: 'Success' })
+    res.json({ message: 'success' })
   } catch (err) {
     next(err)
   }
@@ -284,7 +284,7 @@ export async function deleteUserByJwt(
         },
       })
     })
-    res.json({ message: 'Success' })
+    res.json({ message: 'success' })
   } catch (err) {
     next(err)
   }

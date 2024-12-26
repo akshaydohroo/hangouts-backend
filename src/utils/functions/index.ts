@@ -1,3 +1,7 @@
+import { NextFunction, Request, Response } from 'express'
+import fs from 'fs'
+import path from 'path'
+
 /**
  * Parses a JWT token and extracts specified fields from the token payload.
  * @param token - The JWT token to parse.
@@ -80,4 +84,80 @@ export function inputDateToDate(inputDate: string): Date {
   const day = parseInt(parts[2])
 
   return new Date(year, month, day)
+}
+
+export async function processChunks(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const chunkIndex = parseInt(req.body?.currentChunk, 10)
+  const totalChunks = parseInt(req.body?.totalChunks, 10)
+  const filename = req.body?.filename
+  if (req.file === undefined) {
+    throw new Error('No file uploaded')
+  }
+  const uploadDir = path.join(process.cwd(), 'uploads', res.locals.selfId)
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true })
+  }
+
+  fs.writeFileSync(
+    path.join(
+      process.cwd(),
+      'uploads',
+      res.locals.selfId,
+      `-chunk${chunkIndex}-${totalChunks}.part`
+    ),
+    req.file.buffer,
+    { flag: 'w' }
+  )
+
+  // Check if this is the last chunk and start reassembling the file
+  if (chunkIndex === totalChunks) {
+    const chunks = []
+    try {
+      // Read all chunks and concatenate them to form the full image
+      for (let i = 1; i <= totalChunks; i++) {
+        const chunkPath = path.join(
+          process.cwd(),
+          'uploads',
+          res.locals.selfId,
+          `-chunk${i}-${totalChunks}.part`
+        )
+        chunks.push(fs.promises.readFile(chunkPath))
+      }
+      const resolvedChunks = await Promise.all(chunks)
+
+      const concatBuffer = Buffer.concat(resolvedChunks)
+      next(concatBuffer)
+    } catch (err) {
+      throw new Error('Error processing chunks')
+    } finally {
+      // Clean up and delete the chunks
+      for (let i = 1; i <= totalChunks; i++) {
+        const chunkPath = path.join(
+          process.cwd(),
+          'uploads',
+          res.locals.selfId,
+          `-chunk${i}-${totalChunks}.part`
+        )
+
+        if (fs.existsSync(chunkPath)) {
+          fs.unlink(chunkPath, err => {
+            if (err) {
+              console.log(err)
+            } else {
+              console.log(`Deleted chunk ${i}`)
+            }
+          })
+        } else {
+          console.log(`Chunk ${i} does not exist`)
+        }
+      }
+      return
+    }
+  }
+
+  res.json({ message: 'Chunk received' })
 }
