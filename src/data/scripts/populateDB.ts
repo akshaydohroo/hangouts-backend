@@ -1,6 +1,8 @@
 import bcrypt from 'bcryptjs'
+import cron from 'node-cron'
 import { Sequelize } from 'sequelize'
 import { nodeEnv, nodemailerUser } from '../../config'
+import sequelize from '../../db'
 import Notification from '../../models/Notification' // Import the correct Notification model
 import Story from '../../models/Story'
 import StoryInteraction from '../../models/StoryInteraction'
@@ -11,6 +13,25 @@ import { DBpopulateMailConfig } from './DBPopulateMail'
 import { storyInteractions, userStories } from './stories'
 import { followerNotifications, followersArray } from './userFollowers'
 import { users } from './users'
+
+// Schedule a task to run every year on January 1st at midnight
+export const cronPopulateDB = cron.schedule(
+  '0 0 1 1 *',
+  async () => {
+    try {
+      console.log('Running Populate DB cron job')
+      // Run the populateDB function
+      const res = await populateDB(sequelize.sync({ force: true }))
+      console.log(res)
+    } catch (err) {
+      console.error(err)
+    }
+  },
+  {
+    scheduled: true,
+    timezone: 'Indian/Maldives',
+  }
+)
 
 export function populateDB(sequelize: Promise<Sequelize>): Promise<String> {
   return new Promise((resolve, reject) => {
