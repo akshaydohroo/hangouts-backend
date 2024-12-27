@@ -17,7 +17,7 @@ router.use('/user', userRoutes)
 router.use('/follow', followRoutes)
 router.use('/notification', notificationRoutes)
 router.use('/story', storyRoutes)
-router.use('/health', (req, res) => {
+router.get('/health', (req, res) => {
   res.status(200).send('OK')
 })
 
