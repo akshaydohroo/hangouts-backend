@@ -22,3 +22,4 @@ export const nodemailerUser = process.env.NODEMAILER_USER as string
 export const nodemailerPass = process.env.NODEMAILER_PASS as string
 export const frontendBaseUrl1 = process.env.FRONTEND_BASE_URL_1 as string
 export const frontendBaseUrl2 = process.env.FRONTEND_BASE_URL_2 as string
+export const adminKey = process.env.ADMIN_KEY as string
