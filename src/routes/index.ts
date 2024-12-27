@@ -17,6 +17,9 @@ router.use('/user', userRoutes)
 router.use('/follow', followRoutes)
 router.use('/notification', notificationRoutes)
 router.use('/story', storyRoutes)
+router.use('/health', (req, res) => {
+  res.status(200).send('OK')
+})
 
 router.use('/', (req, res) => {
   res.status(404).send('Resource doesnt exist')
