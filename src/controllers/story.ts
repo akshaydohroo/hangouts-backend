@@ -34,7 +34,7 @@ export async function getFollowingUsersWithStories(
               sequelize.literal(`EXISTS (
             SELECT 1 FROM user_followers AS connection
             WHERE connection."followerId" = '${selfId}'
-            AND connection."userId" =   "User"."id"
+            AND connection."userId" =   "i"."id"
             AND connection."status" = 'accepted'
           )`),
               {
