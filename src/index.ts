@@ -9,6 +9,7 @@ import {
   hostDomainName,
   port,
 } from './config'
+import { populateDB } from './data/scripts/populateDB'
 import sequelize from './db'
 import './models/association'
 import router from './routes'
@@ -39,7 +40,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 try {
   app.listen(PORT, (): void => {
     sequelize.sync().then(() => {
-      // populateDB(sequelize.sync({ force: true }))
+      populateDB(sequelize.sync({ force: true }))
     })
     sequelize
       .authenticate()
