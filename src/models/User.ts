@@ -94,6 +94,12 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare emailVerified: CreationOptional<boolean>
 
   /**
+   * The timestamp of the user's latest story.
+   * @type {CreationOptional<Date>}
+   */
+  declare latestStoryAt: CreationOptional<Date>
+
+  /**
    * The date and time when the user was created.
    * @type {CreationOptional<Date>}
    */
@@ -170,6 +176,7 @@ User.init(
     picture: DataTypes.TEXT,
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
+    latestStoryAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
     emailVerified: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
@@ -181,7 +188,23 @@ User.init(
       allowNull: false,
     },
   },
-  { sequelize, tableName: 'users' }
+  {
+    sequelize,
+    tableName: 'users',
+    indexes: [
+      {
+        name: 'latestStoryAt_desc_index', // Index name
+        fields: [
+          'latestStoryAt',
+          {
+            name: 'latestStoryAt',
+            order: 'DESC',
+          },
+        ],
+        using: 'BTREE',
+      },
+    ],
+  }
 )
 
 export default User

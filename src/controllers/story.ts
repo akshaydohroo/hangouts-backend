@@ -19,6 +19,68 @@ export async function getFollowingUsersWithStories(
       throw Error('User not authorized')
     }
     const selfId = res.locals.selfId as string
+    const limit = Number(req.query.limit) || 30
+    const page = Number(req.query.page) || 1
+    if (!page || !limit || page < 1 || limit < 1) {
+      res.status(400)
+      throw Error('Invalid params')
+    }
+    const offset = (page - 1) * limit
+    let { rows: usersWithStories, count: countUsersWithStories } =
+      await sequelize.transaction(async t => {
+        return await User.findAndCountAll({
+          where: {
+            [Op.or]: [
+              sequelize.literal(`EXISTS (
+            SELECT 1 FROM user_followers AS connection
+            WHERE connection."followerId" = '${selfId}'
+            AND connection."userId" =   "User"."id"
+            AND connection."status" = 'accepted'
+          )`),
+              {
+                visibility: 'public',
+                id: { [Op.ne]: selfId },
+              },
+            ],
+          },
+          attributes: ['id', 'name', 'userName', 'picture', 'latestStoryAt'],
+          include: [
+            {
+              model: Story,
+              as: 'stories',
+              required: true,
+              attributes: ['storyId', 'picture', 'createdAt'],
+            },
+          ],
+          limit,
+          offset,
+          // order: [['latestStoryAt', 'DESC']],
+          transaction: t,
+        })
+      })
+
+    usersWithStories = usersWithStories.sort((a, b) => {
+      if (a.latestStoryAt > b.latestStoryAt) return -1
+      if (a.latestStoryAt < b.latestStoryAt) return 1
+      return 0
+    })
+
+    res.json({
+      count: countUsersWithStories,
+      rows: usersWithStories,
+      totalPages: Math.ceil(countUsersWithStories / limit),
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function getPublicUserWithStories(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
     const limit = Number(req.query.limit) || 10
     const page = Number(req.query.page) || 1
     if (!page || !limit || page < 1 || limit < 1) {
@@ -31,16 +93,7 @@ export async function getFollowingUsersWithStories(
       await sequelize.transaction(async t => {
         return await User.findAndCountAll({
           where: {
-            [Op.or]: [
-              sequelize.literal(`EXISTS (
-          SELECT 1 FROM user_followers AS connection
-          WHERE
-            connection."followerId" = '${selfId}'
-            AND connection."userId" =  '${sequelize.col('id')}'
-            AND connection."status" = 'accepted'
-          )`),
-              { visibility: 'public' },
-            ],
+            visibility: 'public',
           },
           attributes: ['id', 'name', 'userName', 'picture'],
           include: [
@@ -53,11 +106,18 @@ export async function getFollowingUsersWithStories(
           ],
           limit,
           offset,
-          order: [[{ model: Story, as: 'stories' }, 'createdAt', 'DESC']],
+          distinct: true,
+          // order: [
+          //   [
+          //     sequelize.literal(
+          //       '(SELECT MAX("createdAt") FROM stories WHERE stories."userId" = "User"."id")'
+          //     ),
+          //     'DESC',
+          //   ],
+          // ],
           transaction: t,
         })
       })
-
     res.json({
       count: countUsersWithStories,
       rows: usersWithStories,
@@ -261,20 +321,26 @@ export async function likeFollowingUserStory(
     }
 
     const selfId = res.locals.selfId as string
-    const storyId =
-      (req.body.storyId as string) || (req.query.storyId as string)
+    const storyId = (req.body.storyId as UUID) || (req.query.storyId as UUID)
     const isLike = req.body.isLike
     await sequelize.transaction(async t => {
-      return await StoryInteraction.update(
-        { isLike: isLike },
-        {
-          where: {
-            storyId,
-            viewerId: selfId,
-          },
-          transaction: t,
-        }
-      )
+      const [storyInteraction, created] = await StoryInteraction.findOrCreate({
+        where: {
+          storyId,
+          viewerId: selfId,
+        },
+        defaults: {
+          interactionId: randomUUID(),
+          storyId,
+          viewerId: selfId,
+          isLike: isLike,
+        },
+        transaction: t,
+      })
+
+      if (!created) {
+        await storyInteraction.update({ isLike: isLike }, { transaction: t })
+      }
     })
     res.json({ status: 'success' })
   } catch (err) {
@@ -349,18 +415,28 @@ export async function reactFollowingStory(
       throw Error('Invalid request, User not authorized')
     }
     const selfId = res.locals.selfId as string
-    const storyId = req.body.storyId as string
+    const storyId = req.body.storyId as UUID
     const storyInteraction = await sequelize.transaction(async t => {
-      return await StoryInteraction.update(
-        { reactionEmoji: req.body.reaction },
-        {
-          where: {
-            storyId,
-            viewerId: selfId,
-          },
-          transaction: t,
-        }
-      )
+      const [interaction, created] = await StoryInteraction.findOrCreate({
+        where: {
+          storyId,
+          viewerId: selfId,
+        },
+        defaults: {
+          interactionId: randomUUID(),
+          storyId,
+          viewerId: selfId,
+          reactionEmoji: req.body.reaction,
+        },
+        transaction: t,
+      })
+
+      if (!created) {
+        await interaction.update(
+          { reactionEmoji: req.body.reaction },
+          { transaction: t }
+        )
+      }
     })
     res.json({ status: 'success' })
   } catch (err) {

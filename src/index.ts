@@ -38,6 +38,9 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 })
 try {
   app.listen(PORT, (): void => {
+    sequelize.sync().then(() => {
+      // populateDB(sequelize.sync({ force: true }))
+    })
     sequelize
       .authenticate()
       .then(() => {
