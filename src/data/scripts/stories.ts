@@ -27,6 +27,9 @@ function createUserStories(
         seenCount: Math.floor(rng() * 1000),
       }
       userStories.push(story)
+      user.latestStoryAt = new Date(
+        Date.now() - Math.floor(rng() * 5 * 24 * 60 * 60 * 1000)
+      )
       users.forEach(viewer => {
         if (viewer.id === user.id || rng() > 0.5) {
           return

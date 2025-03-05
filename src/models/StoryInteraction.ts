@@ -7,6 +7,7 @@ import {
   InferAttributes,
   InferCreationAttributes,
   Model,
+  SaveOptions,
   UpdateOptions,
 } from 'sequelize'
 import sequelize from '../db'
@@ -100,10 +101,10 @@ StoryInteraction.init(
  * @param {UpdateOptions<InferAttributes<StoryInteraction, { omit: never }>>} options - The update options.
  * @throws {Error} - If the story or sender cannot be found.
  */
-StoryInteraction.afterUpdate(
+StoryInteraction.afterSave(
   async (
     instance: StoryInteraction,
-    options: UpdateOptions<InferAttributes<StoryInteraction, { omit: never }>>
+    options: SaveOptions<InferAttributes<StoryInteraction, { omit: never }>>
   ) => {
     try {
       const {
@@ -112,7 +113,6 @@ StoryInteraction.afterUpdate(
         reactionEmoji,
         isLike,
       } = instance.dataValues
-
       if (
         instance.changed('reactionEmoji') ||
         (instance.changed('isLike') && isLike)
@@ -144,9 +144,7 @@ StoryInteraction.afterUpdate(
           notificationCreationAttributes.notificationMessage = `${sender.userName} liked your story.`
         }
 
-        Notification.create(notificationCreationAttributes, {
-          transaction: options.transaction,
-        })
+        Notification.create(notificationCreationAttributes)
       }
     } catch (err) {
       throw err

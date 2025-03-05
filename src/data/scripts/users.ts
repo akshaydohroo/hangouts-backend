@@ -7,7 +7,7 @@ import { numUsers as numUsersRaw, rng } from './variables'
 const numUsers: number = Number(numUsersRaw)
 
 function getRandomVisibility() {
-  return rng() > 0.5 ? 'public' : 'private' // Use the seeded random generator
+  return rng() > 0.8 ? 'public' : 'private' // Use the seeded random generator
 }
 /**
  * Generates a random birth date within a specified range.
@@ -74,6 +74,8 @@ function generateUserData(): Attributes<User> | CreationAttributes<User> {
     birthDate: getRandomBirthDate(rng), // Replace with a valid birthdate
     gender: ['Male', 'Female', 'Other'][Math.floor(rng() * 3)], // Random gender selection
     visibility: getRandomVisibility(),
+    latestStoryAt: new Date(),
+    emailVerified: rng() > 0.5,
   }
 }
 export const users = Array.from({ length: numUsers }, () => generateUserData())

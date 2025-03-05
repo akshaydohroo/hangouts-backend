@@ -134,4 +134,26 @@ Story.beforeCreate(async (instance: Story, options) => {
   }
 })
 
+Story.afterCreate(async (story, options) => {
+  await User.update(
+    { latestStoryAt: story.createdAt },
+    { where: { id: story.userId } }
+  )
+})
+
+Story.afterDestroy(async story => {
+  // Find the user's most recent story after deletion
+  const latestStory = await Story.findOne({
+    where: { userId: story.userId },
+    order: [['createdAt', 'DESC']],
+    attributes: ['createdAt'],
+  })
+
+  // Update the latestStoryAt column
+  await User.update(
+    { latestStoryAt: latestStory ? latestStory.createdAt : new Date(0) },
+    { where: { id: story.userId } }
+  )
+})
+
 export default Story

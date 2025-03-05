@@ -25,7 +25,6 @@ export async function checkUserExists(
       res.status(400)
       throw Error('Neither username nor email found in query params')
     }
-    console.log(req)
     const username = (req.query.username || req.params.username) as string
     const email = (req.query.email || req.params.email) as string
     const user = await checkIfUserExists({
