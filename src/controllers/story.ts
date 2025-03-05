@@ -1,6 +1,7 @@
 import { randomUUID, UUID } from 'crypto'
 import { NextFunction, Request, Response } from 'express'
 import { Op } from 'sequelize'
+import { nodeEnv } from '../config'
 import sequelize from '../db'
 import Story from '../models/Story'
 import StoryInteraction from '../models/StoryInteraction'
@@ -19,7 +20,7 @@ export async function getFollowingUsersWithStories(
       throw Error('User not authorized')
     }
     const selfId = res.locals.selfId as string
-    const limit = Number(req.query.limit) || 30
+    const limit = Number(req.query.limit) || 50
     const page = Number(req.query.page) || 1
     if (!page || !limit || page < 1 || limit < 1) {
       res.status(400)
@@ -34,7 +35,7 @@ export async function getFollowingUsersWithStories(
               sequelize.literal(`EXISTS (
             SELECT 1 FROM user_followers AS connection
             WHERE connection."followerId" = '${selfId}'
-            AND connection."userId" =   "i"."id"
+            AND connection."userId" =   ${nodeEnv === 'development' ? '"User"' : '"i"'}."id"
             AND connection."status" = 'accepted'
           )`),
               {
