@@ -39,18 +39,20 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 })
 try {
   app.listen(PORT, (): void => {
-    sequelize.sync().then(() => {
-      populateDB(sequelize.sync({ force: true }))
-    })
     sequelize
       .authenticate()
+      .then(() =>
+        sequelize.sync().then(() => {
+          populateDB(sequelize.sync({ force: true }))
+        })
+      )
       .then(() => {
         console.log('Database connection has been established successfully.')
       })
       .then(() => {
         console.log(`Server Running here 👉 http://${hostDomainName}:${PORT}`)
       })
-      .catch(err => {
+      .catch((err: any) => {
         console.error('Unable to connect to the database:', err)
       })
   })
