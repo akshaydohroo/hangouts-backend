@@ -23,14 +23,14 @@ if (nodeEnv === 'development') {
       dialectOptions: {
         connectTimeout: 60000, // 10 seconds timeout for connecting to the PostgreSQL server
       },
-      logging: false,
+      logging: console.log,
     }
   )
 } else {
   sequelize = new Sequelize(dbUrl, {
     dialect: 'postgres',
     ssl: true,
-    logging: false,
+    logging: console.log,
     dialectOptions: {
       connectTimeout: 60000, // 10 seconds timeout for connecting to the PostgreSQL server
     },

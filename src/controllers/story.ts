@@ -32,9 +32,9 @@ export async function getFollowingUsersWithStories(
           where: {
             [Op.or]: [
               sequelize.literal(`EXISTS (
-            SELECT 1 FROM User , user_followers AS connection
+            SELECT 1 FROM user_followers AS connection
             WHERE connection."followerId" = '${selfId}'
-            AND connection."userId" =   "User"."id"
+            AND connection."userId" =   (SELECT "id" FROM "users" WHERE "users"."id" = "User"."id")
             AND connection."status" = 'accepted'
           )`),
               {
@@ -58,7 +58,7 @@ export async function getFollowingUsersWithStories(
           transaction: t,
         })
       })
-
+    // console.log(countUsersWithStories + ' ' + usersWithStories.length +" "+ limit + ' ' + offset)
     usersWithStories = usersWithStories.sort((a, b) => {
       if (a.latestStoryAt > b.latestStoryAt) return -1
       if (a.latestStoryAt < b.latestStoryAt) return 1
