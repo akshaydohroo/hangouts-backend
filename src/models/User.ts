@@ -191,7 +191,6 @@ User.init(
   {
     sequelize,
     tableName: 'users',
-    freezeTableName: true,
     indexes: [
       {
         name: 'latestStoryAt_desc_index', // Index name

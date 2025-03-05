@@ -20,7 +20,9 @@ export async function getFollowingUsersWithStories(
       throw Error('User not authorized')
     }
     const selfId = res.locals.selfId as string
+
     const limit = Number(req.query.limit) || 50
+
     const page = Number(req.query.page) || 1
     if (!page || !limit || page < 1 || limit < 1) {
       res.status(400)
@@ -36,6 +38,7 @@ export async function getFollowingUsersWithStories(
             SELECT 1 FROM user_followers AS connection
             WHERE connection."followerId" = '${selfId}'
             AND connection."userId" =   ${nodeEnv === 'development' ? '"User"' : '"i"'}."id"
+
             AND connection."status" = 'accepted'
           )`),
               {
