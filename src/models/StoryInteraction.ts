@@ -89,7 +89,7 @@ StoryInteraction.init(
   {
     sequelize,
     tableName: 'story_interactions',
-    modelName: 'story_interactions',
+    modelName: 'storyInteraction',
   }
 )
 

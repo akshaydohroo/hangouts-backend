@@ -246,10 +246,12 @@ export async function getStories(
         where: {
           userId: selfId,
         },
-        include: {
-          model: User,
-          as: 'viewers',
-        },
+        include: [
+          {
+            model: User,
+            as: 'viewers',
+          },
+        ],
         transaction: t,
       })
     })
@@ -278,7 +280,7 @@ export async function viewFollowingUserStory(
     const selfId = res.locals.selfId as string
     const storyId = req.params.storyId as string as UUID
     const storyInteraction = await sequelize.transaction(async t => {
-      return await StoryInteraction.findOrCreate({
+      const [storyInteraction, created] = await StoryInteraction.findOrCreate({
         where: {
           storyId,
           viewerId: selfId,
@@ -290,6 +292,16 @@ export async function viewFollowingUserStory(
         },
         transaction: t,
       })
+
+      if (!created) {
+        await Story.increment('seenCount', {
+          where: { storyId },
+          by: 1,
+          transaction: t,
+        })
+      }
+
+      return storyInteraction
     })
     res.json({ status: 'success' })
   } catch (err) {
@@ -337,15 +349,26 @@ export async function likeFollowingUserStory(
           interactionId: randomUUID(),
           storyId,
           viewerId: selfId,
-          isLike: isLike,
+          isLike: false,
         },
         transaction: t,
       })
 
+      if (storyInteraction.isLike === isLike) {
+        return
+      }
+
       if (!created) {
         await storyInteraction.update({ isLike: isLike }, { transaction: t })
       }
+
+      await Story.increment('likes', {
+        where: { storyId },
+        by: isLike ? 1 : -1,
+        transaction: t,
+      })
     })
+
     res.json({ status: 'success' })
   } catch (err) {
     next(err)
@@ -385,7 +408,7 @@ export async function isFollowingUserStoryLiked(
         transaction: t,
       })
     })
-    res.json(storyInteraction?.isLike)
+    res.json(storyInteraction?.isLike ?? false)
   } catch (err) {
     next(err)
   }

@@ -4,6 +4,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import express, { Application, NextFunction, Request, Response } from 'express'
 import {
+  aliveUrl,
   frontendBaseUrl1,
   frontendBaseUrl2,
   hostDomainName,
@@ -18,7 +19,7 @@ const app: Application = express()
 const PORT = port || 8000
 app.use(
   cors({
-    origin: [frontendBaseUrl1, frontendBaseUrl2],
+    origin: [frontendBaseUrl1, frontendBaseUrl2, aliveUrl],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-refresh-token'],
     credentials: true,
     methods: ['GET', 'PUT', 'POST'],
