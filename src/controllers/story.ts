@@ -293,7 +293,7 @@ export async function viewFollowingUserStory(
         transaction: t,
       })
 
-      if (!created) {
+      if (created) {
         await Story.increment('seenCount', {
           where: { storyId },
           by: 1,
@@ -358,9 +358,7 @@ export async function likeFollowingUserStory(
         return
       }
 
-      if (!created) {
-        await storyInteraction.update({ isLike: isLike }, { transaction: t })
-      }
+      await storyInteraction.update({ isLike: isLike }, { transaction: t })
 
       await Story.increment('likes', {
         where: { storyId },
