@@ -11,45 +11,70 @@ import {
   NonAttribute,
 } from 'sequelize'
 import sequelize from '../db'
+import Post from './Post'
 import User from './User'
 
-class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
-  declare postId: UUID
+/**
+ * Class representing a Story.
+ * @extends Model
+ */
+class Comment extends Model<
+  InferAttributes<Comment>,
+  InferCreationAttributes<Comment>
+> {
+  declare commentId: UUID
+
+  declare postId: ForeignKey<Post['postId']>
+
   declare userId: ForeignKey<User['id']>
-  declare picture: string
-  declare caption: string
+
+  declare parentCommentId: UUID | null
+
+  declare text: string
+
   declare likes: CreationOptional<number>
+
   declare getUser: BelongsToGetAssociationMixin<User>
+
   declare createUser: BelongsToCreateAssociationMixin<User>
+
+  declare getPost: BelongsToGetAssociationMixin<Post>
+
+  declare createPost: BelongsToCreateAssociationMixin<Post>
+
   declare user?: NonAttribute<User>
+
+  declare post?: NonAttribute<Post>
+
   declare createdAt: CreationOptional<Date>
+
   declare updatedAt: CreationOptional<Date>
 }
 
-Post.init(
+Comment.init(
   {
-    postId: {
+    commentId: {
       type: DataTypes.UUID,
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-    picture: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    caption: {
-      type: DataTypes.TEXT,
+    parentCommentId: {
+      type: DataTypes.UUID,
       allowNull: true,
     },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
+    text: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
     likes: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
     },
   },
-  { sequelize, tableName: 'posts' }
+  { sequelize, tableName: 'comments' }
 )
 
-export default Post
+export default Comment
