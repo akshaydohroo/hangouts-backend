@@ -1,13 +1,12 @@
+import Comment from './Comment'
 import Notification from './Notification'
+import Post from './Post'
+import PostInteraction from './PostInteraction'
 import Story from './Story'
 import StoryInteraction from './StoryInteraction'
 import User from './User'
 import UserFollower from './UserFollower'
 
-/**
- * Establishes a many-to-many relationship between User and User through UserFollower.
- * A user can have many followers and can follow many users.
- */
 User.belongsToMany(User, {
   through: UserFollower,
   foreignKey: 'userId',
@@ -17,10 +16,6 @@ User.belongsToMany(User, {
   sourceKey: 'id',
 })
 
-/**
- * Establishes a many-to-many relationship between User and User through UserFollower.
- * A user can follow many users and can be followed by many users.
- */
 User.belongsToMany(User, {
   through: UserFollower,
   foreignKey: 'followerId',
@@ -30,10 +25,6 @@ User.belongsToMany(User, {
   sourceKey: 'id',
 })
 
-/**
- * Establishes a one-to-many relationship between User and Notification.
- * A user can have many notifications.
- */
 User.hasMany(Notification, {
   foreignKey: {
     allowNull: false,
@@ -43,10 +34,6 @@ User.hasMany(Notification, {
   as: 'notifications',
 })
 
-/**
- * Establishes a many-to-one relationship between Notification and User.
- * A notification belongs to a single user.
- */
 Notification.belongsTo(User, {
   foreignKey: {
     allowNull: false,
@@ -56,10 +43,6 @@ Notification.belongsTo(User, {
   as: 'user',
 })
 
-/**
- * Establishes a one-to-many relationship between User and Notification.
- * A user can have many activities (notifications they sent).
- */
 User.hasMany(Notification, {
   foreignKey: {
     allowNull: false,
@@ -69,10 +52,6 @@ User.hasMany(Notification, {
   as: 'activities',
 })
 
-/**
- * Establishes a many-to-one relationship between Notification and User.
- * A notification belongs to a single user (the sender).
- */
 Notification.belongsTo(User, {
   foreignKey: {
     allowNull: false,
@@ -82,10 +61,6 @@ Notification.belongsTo(User, {
   as: 'sender',
 })
 
-/**
- * Establishes a one-to-many relationship between User and Story.
- * A user can have many stories.
- */
 User.hasMany(Story, {
   foreignKey: {
     allowNull: false,
@@ -95,10 +70,6 @@ User.hasMany(Story, {
   as: 'stories',
 })
 
-/**
- * Establishes a many-to-one relationship between Story and User.
- * A story belongs to a single user.
- */
 Story.belongsTo(User, {
   foreignKey: {
     allowNull: false,
@@ -108,10 +79,6 @@ Story.belongsTo(User, {
   as: 'user',
 })
 
-/**
- * Establishes a many-to-many relationship between Story and User through StoryInteraction.
- * A story can have many viewers and a user can view many stories.
- */
 Story.belongsToMany(User, {
   foreignKey: {
     allowNull: false,
@@ -123,10 +90,6 @@ Story.belongsToMany(User, {
   as: 'viewers',
 })
 
-/**
- * Establishes a many-to-many relationship between User and Story through StoryInteraction.
- * A user can view many stories and a story can have many viewers.
- */
 User.belongsToMany(Story, {
   foreignKey: {
     allowNull: false,
@@ -135,5 +98,98 @@ User.belongsToMany(Story, {
   targetKey: 'storyId',
   sourceKey: 'id',
   through: StoryInteraction,
-  as: 'viewed_stories',
+  as: 'viewedStories',
+})
+
+User.hasMany(Post, {
+  foreignKey: {
+    allowNull: false,
+    name: 'userId',
+  },
+  as: 'posts',
+  sourceKey: 'id',
+})
+
+Post.belongsTo(User, {
+  foreignKey: {
+    allowNull: false,
+    name: 'userId',
+  },
+  targetKey: 'id',
+  as: 'user',
+})
+
+Post.hasMany(Comment, {
+  foreignKey: {
+    allowNull: false,
+    name: 'postId',
+  },
+  as: 'comments',
+  sourceKey: 'postId',
+})
+
+Comment.belongsTo(Post, {
+  foreignKey: {
+    allowNull: false,
+    name: 'postId',
+  },
+  targetKey: 'postId',
+  as: 'post',
+})
+
+Comment.belongsTo(User, {
+  foreignKey: {
+    allowNull: false,
+    name: 'userId',
+  },
+  targetKey: 'id',
+  as: 'user',
+})
+
+User.hasMany(Comment, {
+  foreignKey: {
+    allowNull: false,
+    name: 'userId',
+  },
+  as: 'comments',
+  sourceKey: 'id',
+})
+
+Comment.belongsTo(Comment, {
+  foreignKey: {
+    allowNull: true,
+    name: 'parentCommentId',
+  },
+  targetKey: 'commentId',
+  as: 'parentComment',
+})
+
+Comment.hasMany(Comment, {
+  foreignKey: {
+    allowNull: true,
+    name: 'parentCommentId',
+  },
+  as: 'replies',
+  sourceKey: 'commentId',
+})
+
+Post.belongsToMany(User, {
+  foreignKey: {
+    allowNull: false,
+    name: 'postId',
+  },
+  targetKey: 'id',
+  sourceKey: 'postId',
+  through: PostInteraction,
+  as: 'viewedPosts',
+})
+User.belongsToMany(Post, {
+  foreignKey: {
+    allowNull: false,
+    name: 'viewerId',
+  },
+  targetKey: 'postId',
+  sourceKey: 'id',
+  through: PostInteraction,
+  as: 'viewers',
 })

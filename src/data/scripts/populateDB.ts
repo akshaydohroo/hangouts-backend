@@ -3,13 +3,18 @@ import cron from 'node-cron'
 import { Sequelize } from 'sequelize'
 import { nodeEnv, nodemailerUser } from '../../config'
 import sequelize from '../../db'
+import Comment from '../../models/Comment'
 import Notification from '../../models/Notification' // Import the correct Notification model
+import Post from '../../models/Post'
+import PostInteraction from '../../models/PostInteraction'
 import Story from '../../models/Story'
 import StoryInteraction from '../../models/StoryInteraction'
 import User from '../../models/User'
 import UserFollower from '../../models/UserFollower'
 import transport from '../../utils/transport'
+import { comments } from './comments'
 import { DBpopulateMailConfig } from './DBPopulateMail'
+import { postInteractions, userPosts } from './posts'
 import { storyInteractions, userStories } from './stories'
 import { followerNotifications, followersArray } from './userFollowers'
 import { users } from './users'
@@ -72,13 +77,22 @@ export function populateDB(sequelize: Promise<Sequelize>): Promise<String> {
         return UserFollower.bulkCreate(followersArray)
       })
       .then(() => {
-        return Notification.bulkCreate(followerNotifications)
-      })
-      .then(() => {
         return Story.bulkCreate(userStories)
       })
       .then(() => {
         return StoryInteraction.bulkCreate(storyInteractions)
+      })
+      .then(() => {
+        return Post.bulkCreate(userPosts)
+      })
+      .then(() => {
+        return PostInteraction.bulkCreate(postInteractions)
+      })
+      .then(() => {
+        return Comment.bulkCreate(comments)
+      })
+      .then(() => {
+        return Notification.bulkCreate(followerNotifications)
       })
       .then(() => {
         resolve('Database populated successfully')
