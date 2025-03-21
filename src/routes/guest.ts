@@ -1,12 +1,9 @@
 import { Router } from 'express'
 import { getPublicPosts } from '../../src/controllers/post'
-<<<<<<< HEAD
 import {
   getPublicPostComments,
   getPublicPostCommentsCount,
 } from '../controllers/comment'
-=======
->>>>>>> main
 import { getPublicUserWithStories } from '../controllers/story'
 import { getUsers } from '../controllers/user'
 
