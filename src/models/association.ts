@@ -143,7 +143,11 @@ Comment.belongsTo(User, {
     name: 'userId',
   },
   targetKey: 'id',
+<<<<<<< HEAD
   as: 'author',
+=======
+  as: 'user',
+>>>>>>> main
 })
 
 User.hasMany(Comment, {
