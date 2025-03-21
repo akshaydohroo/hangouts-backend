@@ -10,7 +10,6 @@ import {
   hostDomainName,
   port,
 } from './config'
-import { populateDB } from './data/scripts/populateDB'
 import sequelize from './db'
 import './models/association'
 import router from './routes'
@@ -41,7 +40,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 try {
   sequelize
     .authenticate()
-    .then(() => populateDB(sequelize.sync({ force: true })))
+    // .then(() => populateDB(sequelize.sync({ force: true })))
     .then(() => {
       console.log('Database connection has been established successfully.')
       app.listen(PORT, (): void => {
