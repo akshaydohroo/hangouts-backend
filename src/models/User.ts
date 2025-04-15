@@ -10,7 +10,9 @@ import {
   NonAttribute,
 } from 'sequelize'
 import sequelize from '../db'
+import Comment from './Comment'
 import Notification from './Notification'
+import Post from './Post'
 import Story from './Story'
 import UserFollower from './UserFollower'
 
@@ -118,10 +120,22 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare followers?: NonAttribute<UserWithFollower[]>
 
   /**
+   * The users followed by this user.
+   * @type {NonAttribute<User[]>}
+   */
+  declare follows?: NonAttribute<User[]>
+
+  /**
    * The notifications associated with the user.
    * @type {NonAttribute<Notification[]>}
    */
   declare notifications?: NonAttribute<Notification[]>
+
+  /**
+   * The activities (notifications sent by the user).
+   * @type {NonAttribute<Notification[]>}
+   */
+  declare activities?: NonAttribute<Notification[]>
 
   /**
    * Creates a story associated with the user.
@@ -130,10 +144,46 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare createStory: HasManyCreateAssociationMixin<Story, 'userId'>
 
   /**
+   * Creates a post associated with the user.
+   * @type {HasManyCreateAssociationMixin<Post, "userId">}
+   */
+  declare createPost: HasManyCreateAssociationMixin<Post, 'userId'>
+
+  /**
+   * Creates a comment associated with the user.
+   * @type {HasManyCreateAssociationMixin<Comment, "userId">}
+   */
+  declare createPostComment: HasManyCreateAssociationMixin<Comment, 'userId'>
+
+  /**
    * The stories associated with the user.
    * @type {NonAttribute<Story[]>}
    */
   declare stories?: NonAttribute<Story[]>
+
+  /**
+   * The stories viewed by the user.
+   * @type {NonAttribute<Story[]>}
+   */
+  declare viewedStories?: NonAttribute<Story[]>
+
+  /**
+   * The posts associated with the user.
+   * @type {NonAttribute<Post[]>}
+   */
+  declare posts?: NonAttribute<Post[]>
+
+  /**
+   * The posts viewed by the user.
+   * @type {NonAttribute<Post[]>}
+   */
+  declare viewedPosts?: NonAttribute<Post[]>
+
+  /**
+   * The comments associated with the user.
+   * @type {NonAttribute<Comment[]>}
+   */
+  declare postComments?: NonAttribute<Comment[]>
 
   /**
    * The associations for the User model.
@@ -141,8 +191,15 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
    */
   declare static associations: {
     users: Association<User, User>
+    followers: Association<User, User>
+    follows: Association<User, User>
     notifications: Association<User, Notification>
+    activities: Association<User, Notification>
     stories: Association<User, Story>
+    posts: Association<User, Post>
+    postComments: Association<User, Comment>
+    viewedStories: Association<User, Story>
+    viewedPosts: Association<User, Post>
   }
 }
 

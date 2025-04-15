@@ -7,6 +7,7 @@ import StoryInteraction from './StoryInteraction'
 import User from './User'
 import UserFollower from './UserFollower'
 
+// User-to-User (Followers and Follows)
 User.belongsToMany(User, {
   through: UserFollower,
   foreignKey: 'userId',
@@ -25,6 +26,7 @@ User.belongsToMany(User, {
   sourceKey: 'id',
 })
 
+// User-to-Notification
 User.hasMany(Notification, {
   foreignKey: {
     allowNull: false,
@@ -61,6 +63,7 @@ Notification.belongsTo(User, {
   as: 'sender',
 })
 
+// User-to-Story
 User.hasMany(Story, {
   foreignKey: {
     allowNull: false,
@@ -79,6 +82,7 @@ Story.belongsTo(User, {
   as: 'user',
 })
 
+// Story-to-User (Viewers)
 Story.belongsToMany(User, {
   foreignKey: {
     allowNull: false,
@@ -101,6 +105,7 @@ User.belongsToMany(Story, {
   as: 'viewedStories',
 })
 
+// User-to-Post
 User.hasMany(Post, {
   foreignKey: {
     allowNull: false,
@@ -119,6 +124,7 @@ Post.belongsTo(User, {
   as: 'user',
 })
 
+// Post-to-Comment
 Post.hasMany(Comment, {
   foreignKey: {
     allowNull: false,
@@ -137,6 +143,7 @@ Comment.belongsTo(Post, {
   as: 'post',
 })
 
+// Comment-to-User
 Comment.belongsTo(User, {
   foreignKey: {
     allowNull: false,
@@ -155,6 +162,7 @@ User.hasMany(Comment, {
   sourceKey: 'id',
 })
 
+// Comment-to-Comment (Replies)
 Comment.belongsTo(Comment, {
   foreignKey: {
     allowNull: true,
@@ -173,6 +181,7 @@ Comment.hasMany(Comment, {
   sourceKey: 'commentId',
 })
 
+// Post-to-User (Viewers)
 Post.belongsToMany(User, {
   foreignKey: {
     allowNull: false,
@@ -183,6 +192,7 @@ Post.belongsToMany(User, {
   through: PostInteraction,
   as: 'viewedPosts',
 })
+
 User.belongsToMany(Post, {
   foreignKey: {
     allowNull: false,

@@ -4,6 +4,7 @@ import dataRoutes from './data'
 import followRoutes from './follow'
 import guestRoutes from './guest'
 import notificationRoutes from './notification'
+import postRoutes from './posts'
 import storyRoutes from './story'
 import userRoutes from './user'
 
@@ -19,6 +20,7 @@ router.use('/user', userRoutes)
 router.use('/follow', followRoutes)
 router.use('/notification', notificationRoutes)
 router.use('/story', storyRoutes)
+router.use('/post', postRoutes)
 router.use('/data', dataRoutes)
 
 router.get('/health', (req, res) => {

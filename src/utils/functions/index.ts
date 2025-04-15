@@ -93,7 +93,6 @@ export async function processChunks(
 ): Promise<void> {
   const chunkIndex = parseInt(req.body?.currentChunk, 10)
   const totalChunks = parseInt(req.body?.totalChunks, 10)
-  const filename = req.body?.filename
   if (req.file === undefined) {
     throw new Error('No file uploaded')
   }
