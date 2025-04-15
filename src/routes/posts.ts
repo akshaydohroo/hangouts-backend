@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import { processChunks } from 'src/utils/functions'
 import { multerUpload } from '../config'
 import { createPost, getPosts } from '../controllers/post'
+import { processChunks } from '../utils/functions'
 import { protectRoutes } from '../utils/functions/auth'
 
 const router = Router({ mergeParams: true })
