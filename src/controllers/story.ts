@@ -166,6 +166,10 @@ export async function createUserStory(
       storyId,
       'story'
     )
+    if (!uploadPicture) {
+      res.status(500)
+      throw Error("Story picture doesn't exist")
+    }
     const story = await sequelize.transaction(async t => {
       return user.createStory(
         { storyId, picture: uploadPicture.secure_url },
