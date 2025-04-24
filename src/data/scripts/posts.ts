@@ -19,13 +19,12 @@ function createUserPosts(
     | CreationAttributes<PostInteraction>
   )[] = []
   users.forEach(user => {
-    for (let i = 0; i < Math.floor(rng() * 5) + 1; i++) {
+    for (let i = 0; i < Math.floor(rng() * 10) + 1; i++) {
       const post: Attributes<Post> | CreationAttributes<Post> = {
         userId: user.id,
         postId: randomUUID(),
         picture: `https://picsum.photos/${800 + Math.floor(rng() * 1000)}/${600 + Math.floor(rng() * 600)}?random=${Math.floor(rng() * 1000)}`,
         caption: sampleComments[Math.floor(rng() * sampleComments.length)],
-        likes: rng() * 20,
       }
       userPosts.push(post)
 
@@ -33,14 +32,17 @@ function createUserPosts(
         if (viewer.id === user.id || rng() > 0.5) {
           return
         }
+        const isLike = rng() > 0.5
+
         postInteractions.push({
           interactionId: randomUUID(),
           postId: post.postId,
           viewerId: viewer.id,
-          reactionEmoji: ['👍', '❤️', '😂', '😮', '😢', '👎'][
-            Math.floor(rng() * 6)
-          ],
+          isLike,
         } as Attributes<PostInteraction> | CreationAttributes<PostInteraction>)
+        if (isLike) post.likes = (post?.likes ?? 1) + 1
+
+        post.seenCount = (post?.seenCount ?? 0) + 1
       })
     }
   })

@@ -144,7 +144,7 @@ StoryInteraction.afterSave(
           notificationCreationAttributes.notificationMessage = `${sender.userName} liked your story.`
         }
 
-        Notification.create(notificationCreationAttributes)
+        await Notification.create(notificationCreationAttributes)
       }
     } catch (err) {
       throw err

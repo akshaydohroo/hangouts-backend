@@ -19,6 +19,8 @@ class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
   declare picture: string
   declare caption: string
   declare likes: CreationOptional<number>
+  declare commentsCount: CreationOptional<number>
+  declare seenCount: CreationOptional<number>
   declare getUser: BelongsToGetAssociationMixin<User>
   declare createUser: BelongsToCreateAssociationMixin<User>
   declare user?: NonAttribute<User>
@@ -44,6 +46,16 @@ Post.init(
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
     likes: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    seenCount: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    commentsCount: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
