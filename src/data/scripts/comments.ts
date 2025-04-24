@@ -16,6 +16,7 @@ function createPostsComments(
   posts.forEach(post => {
     const postComments: Attributes<Comment> | CreationAttributes<Comment>[] = []
     for (let i = 0; i < Math.floor(rng() * 10) + 1; i++) {
+      post.commentsCount = 1 + (post.commentsCount ?? 0)
       const comment: Attributes<Comment> | CreationAttributes<Comment> = {
         postId: post.postId,
         commentId: crypto.randomUUID(),

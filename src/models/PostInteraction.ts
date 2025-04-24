@@ -24,6 +24,7 @@ class PostInteraction extends Model<
   declare reactionEmoji: CreationOptional<string>
   declare createdAt: CreationOptional<Date>
   declare updatedAt: CreationOptional<Date>
+  declare isLike: boolean
 }
 
 PostInteraction.init(
@@ -37,6 +38,11 @@ PostInteraction.init(
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
     reactionEmoji: DataTypes.STRING(4),
+    isLike: {
+      defaultValue: false,
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
   },
   {
     sequelize,
@@ -58,12 +64,11 @@ PostInteraction.afterSave(
     instance: PostInteraction,
     options: SaveOptions<InferAttributes<PostInteraction, { omit: never }>>
   ) => {
+    const transaction = options.transaction || (await sequelize.transaction())
     try {
-      const { postId, viewerId: senderId, reactionEmoji } = instance.dataValues
-      if (instance.changed('reactionEmoji')) {
-        const post = await Post.findByPk(postId, {
-          transaction: options.transaction,
-        })
+      const { postId, viewerId: senderId } = instance.dataValues
+      if (instance.changed('isLike')) {
+        const post = await Post.findByPk(postId, { transaction })
         if (!post) throw Error("Post couldn't be found")
         console.log('post found')
         const userId = post.dataValues.userId
@@ -76,28 +81,84 @@ PostInteraction.afterSave(
 
         const sender = await User.findByPk(senderId, {
           attributes: ['name', 'userName'],
-          transaction: options.transaction,
+          transaction,
         })
         if (!sender) throw Error('No sender found')
         console.log('sender found')
-        if (instance.get('reactionEmoji') == '👍') {
-          Post.increment('likes', { where: { postId: postId } })
+        if (instance.get('isLike')) {
+          await Post.increment('likes', {
+            where: { postId: postId },
+            transaction,
+          })
           console.log('incremented likes')
           notificationCreationAttributes.notificationType = 'like'
           notificationCreationAttributes.notificationMessage = `${sender.userName} liked your post.`
+          await Notification.create(notificationCreationAttributes, {
+            transaction,
+          })
         } else {
-          if (instance.previous('reactionEmoji') === '👍') {
-            Post.decrement('likes', { where: { postId: postId } })
-          }
-          notificationCreationAttributes.notificationType = 'reaction'
-          notificationCreationAttributes.notificationMessage = `${sender.userName} reacted ${reactionEmoji} on your post.`
+          await Post.decrement('likes', {
+            where: { postId: postId },
+            transaction,
+          })
+          console.log('decremented likes')
         }
-
-        Notification.create(notificationCreationAttributes)
       }
+      if (!options.transaction) await transaction.commit()
     } catch (err) {
+      if (!options.transaction) await transaction.rollback()
       throw err
     }
   }
 )
+// PostInteraction.afterBulkCreate(
+//   async (
+//     instances: readonly PostInteraction[],
+//     options: BulkCreateOptions<
+//       InferAttributes<PostInteraction, { omit: never }>
+//     >
+//   ) => {
+//     const transaction = options.transaction || (await sequelize.transaction())
+//     try {
+//       for (const instance of instances) {
+//         const { postId, viewerId: senderId } = instance.dataValues
+//         if (instance.get('isLike')) {
+//           const post = await Post.findByPk(postId, { transaction })
+//           if (!post) throw Error("Post couldn't be found")
+//           console.log('post found')
+//           const userId = post.dataValues.userId
+//           const notificationCreationAttributes = {
+//             userId,
+//             senderId,
+//             causeId: postId,
+//             cause: 'post',
+//           } as CreationAttributes<Notification>
+
+//           const sender = await User.findByPk(senderId, {
+//             attributes: ['name', 'userName'],
+//             transaction,
+//           })
+//           if (!sender) throw Error('No sender found')
+//           console.log('sender found')
+//           if (instance.get('isLike')) {
+//             await Post.increment('likes', {
+//               where: { postId: postId },
+//               transaction,
+//             })
+//             console.log('incremented likes')
+//             notificationCreationAttributes.notificationType = 'like'
+//             notificationCreationAttributes.notificationMessage = `${sender.userName} liked your post.`
+//             await Notification.create(notificationCreationAttributes, {
+//               transaction,
+//             })
+//           }
+//         }
+//       }
+//       if (!options.transaction) await transaction.commit()
+//     } catch (err) {
+//       if (!options.transaction) await transaction.rollback()
+//       throw err
+//     }
+//   }
+// )
 export default PostInteraction
