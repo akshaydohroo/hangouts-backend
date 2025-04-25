@@ -12,6 +12,7 @@ import {
 } from './config'
 import sequelize from './db'
 import './models/association'
+import limiter from './rateLimiter'
 import router from './routes'
 dotenv.config()
 
@@ -25,7 +26,9 @@ app.use(
     methods: ['GET', 'PUT', 'POST'],
   })
 )
+
 app.use(cookieParser())
+app.use(limiter)
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use('/', router)
