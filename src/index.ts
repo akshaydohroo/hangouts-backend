@@ -38,12 +38,14 @@ const io = new Server(httpServer, {
     credentials: true,
   },
 })
+
 io.use((socket, next) => {
   try {
     const cookies = socket.handshake.headers.cookie
     if (!cookies) throw new Error('No cookies found')
-
+    console.log(cookies)
     const parsedCookies = cookie.parse(cookies)
+    console.log(parsedCookies)
     const token = parsedCookies['access-token']
 
     if (!token) throw new Error('No token found')
