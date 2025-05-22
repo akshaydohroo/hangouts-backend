@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { Op, QueryTypes } from 'sequelize'
+import { nodeEnv } from '../config'
 import sequelize from '../db'
 import Chat from '../models/Chat'
 import ChatParticipant from '../models/ChatParticipant'
@@ -52,18 +53,20 @@ export async function getOrCreateUserChat(
     }
 
     const chat = await sequelize.transaction(async t => {
+      const chatAlias = nodeEnv === 'development' ? '"Chat"' : '"s"'
+
       let [chat] = await sequelize.query<Chat>(
         `
-        SELECT "Chat".*
-        FROM "chats" AS "Chat"
-        INNER JOIN "chat_participants" AS "chatParticipants"
-          ON "chatParticipants"."chatId" = "Chat"."chatId"
-        WHERE "Chat"."participantsCount" = 2
-          AND "chatParticipants"."userId" IN (:selfId, :userId)
-        GROUP BY "Chat"."chatId"
-        HAVING COUNT(DISTINCT "chatParticipants"."userId") = 2
-        LIMIT 1
-        `,
+  SELECT ${chatAlias}.*
+  FROM "chats" AS ${chatAlias}
+  INNER JOIN "chat_participants" AS "chatParticipants"
+    ON "chatParticipants"."chatId" = ${chatAlias}."chatId"
+  WHERE ${chatAlias}."participantsCount" = 2
+    AND "chatParticipants"."userId" IN (:selfId, :userId)
+  GROUP BY ${chatAlias}."chatId"
+  HAVING COUNT(DISTINCT "chatParticipants"."userId") = 2
+  LIMIT 1
+`,
         {
           replacements: { selfId, userId },
           type: QueryTypes.SELECT,
