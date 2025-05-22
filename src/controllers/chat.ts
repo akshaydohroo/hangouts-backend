@@ -53,20 +53,18 @@ export async function getOrCreateUserChat(
     }
 
     const chat = await sequelize.transaction(async t => {
-      const chatAlias = nodeEnv === 'development' ? '"Chat"' : '"s"'
-
       let [chat] = await sequelize.query<Chat>(
         `
-  SELECT ${chatAlias}.*
-  FROM "chats" AS ${chatAlias}
-  INNER JOIN "chat_participants" AS "chatParticipants"
-    ON "chatParticipants"."chatId" = ${chatAlias}."chatId"
-  WHERE ${chatAlias}."participantsCount" = 2
-    AND "chatParticipants"."userId" IN (:selfId, :userId)
-  GROUP BY ${chatAlias}."chatId"
-  HAVING COUNT(DISTINCT "chatParticipants"."userId") = 2
-  LIMIT 1
-`,
+        SELECT "Chat".*
+        FROM "chats" AS "Chat"
+        INNER JOIN "chat_participants" AS "chatParticipants"
+          ON "chatParticipants"."chatId" = "Chat"."chatId"
+        WHERE "Chat"."participantsCount" = 2
+          AND "chatParticipants"."userId" IN (:selfId, :userId)
+        GROUP BY "Chat"."chatId"
+        HAVING COUNT(DISTINCT "chatParticipants"."userId") = 2
+        LIMIT 1
+        `,
         {
           replacements: { selfId, userId },
           type: QueryTypes.SELECT,
@@ -118,7 +116,15 @@ export async function getUserChats(
     if (searchTerm && searchTerm.length > 0) {
       const searchTermFilteredChat = await Chat.findAll({
         attributes: [
-          [sequelize.fn('DISTINCT', sequelize.col('Chat.chatId')), 'chatId'],
+          [
+            sequelize.fn(
+              'DISTINCT',
+              sequelize.col(
+                `${nodeEnv === 'development' ? '"Chat"' : '"s"'}.chatId`
+              )
+            ),
+            'chatId',
+          ],
         ], // ✅ use DISTINCT for chatId
         where: {
           [Op.or]: [
