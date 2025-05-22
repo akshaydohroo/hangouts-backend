@@ -99,7 +99,7 @@ export function populateDB(sequelize: Promise<Sequelize>): Promise<String> {
       })
       .catch(err => {
         console.error(err)
-        reject(err)
+        resolve('Error populating database')
       })
   })
 }

@@ -1,7 +1,11 @@
+import Chat from './Chat'
+import ChatParticipant from './ChatParticipant'
 import Comment from './Comment'
+import Message from './Message'
 import Notification from './Notification'
 import Post from './Post'
 import PostInteraction from './PostInteraction'
+import ReadChatReceipts from './ReadChatReceipts'
 import Story from './Story'
 import StoryInteraction from './StoryInteraction'
 import User from './User'
@@ -202,4 +206,134 @@ User.belongsToMany(Post, {
   sourceKey: 'id',
   through: PostInteraction,
   as: 'viewers',
+})
+
+Chat.belongsToMany(User, {
+  foreignKey: {
+    allowNull: false,
+    name: 'chatId',
+  },
+  otherKey: 'userId',
+  targetKey: 'id',
+  sourceKey: 'chatId',
+  through: ChatParticipant,
+  as: 'participants',
+})
+
+User.belongsToMany(Chat, {
+  foreignKey: {
+    allowNull: false,
+    name: 'userId',
+  },
+  otherKey: 'chatId',
+  targetKey: 'chatId',
+  sourceKey: 'id',
+  through: ChatParticipant,
+  as: 'userChats',
+})
+
+Chat.hasMany(ChatParticipant, {
+  foreignKey: 'chatId',
+  as: 'chatParticipants',
+})
+
+ChatParticipant.belongsTo(Chat, {
+  foreignKey: 'chatId',
+  as: 'chat',
+})
+
+Chat.belongsTo(Message, {
+  foreignKey: {
+    allowNull: true,
+    name: 'lastMessageId',
+  },
+  targetKey: 'messageId',
+  as: 'lastMessage',
+})
+
+Message.hasOne(Chat, {
+  foreignKey: {
+    allowNull: true,
+    name: 'lastMessageId',
+  },
+  sourceKey: 'messageId',
+  as: 'chatWithLastMessage',
+})
+
+Chat.hasMany(Message, {
+  foreignKey: {
+    allowNull: false,
+    name: 'chatId',
+  },
+  sourceKey: 'chatId',
+  as: 'messages',
+})
+
+Message.belongsTo(Chat, {
+  foreignKey: {
+    allowNull: false,
+    name: 'chatId',
+  },
+  targetKey: 'chatId',
+  as: 'chat',
+})
+
+User.hasMany(Message, {
+  foreignKey: {
+    allowNull: false,
+    name: 'senderId',
+  },
+  sourceKey: 'id',
+  as: 'messages',
+})
+
+Message.belongsTo(User, {
+  foreignKey: {
+    allowNull: false,
+    name: 'senderId',
+  },
+  targetKey: 'id',
+  as: 'sender',
+})
+
+Message.belongsToMany(User, {
+  foreignKey: {
+    allowNull: false,
+    name: 'messageId',
+  },
+  otherKey: 'userId',
+  targetKey: 'id',
+  sourceKey: 'messageId',
+  through: ReadChatReceipts,
+  as: 'readBy',
+})
+
+Message.belongsTo(Message, {
+  foreignKey: {
+    allowNull: true,
+    name: 'replyToMessageId',
+  },
+  targetKey: 'messageId',
+  as: 'replyToMessage',
+})
+
+Message.hasMany(Message, {
+  foreignKey: {
+    allowNull: true,
+    name: 'replyToMessageId',
+  },
+  sourceKey: 'messageId',
+  as: 'replies',
+})
+
+User.belongsToMany(Message, {
+  foreignKey: {
+    allowNull: false,
+    name: 'userId',
+  },
+  otherKey: 'messageId',
+  targetKey: 'messageId',
+  sourceKey: 'id',
+  through: ReadChatReceipts,
+  as: 'readMessages',
 })

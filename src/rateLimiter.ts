@@ -2,7 +2,7 @@ import rateLimit from 'express-rate-limit'
 
 const limiter = rateLimit({
   windowMs: 1 * 10 * 1000, // 1 minute
-  max: 50,
+  max: 200,
   message: { error: 'Too many requests' },
   standardHeaders: true, // Adds `RateLimit-*` headers
   legacyHeaders: false, // Disables `X-RateLimit-*` headers
