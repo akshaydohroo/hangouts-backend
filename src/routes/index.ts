@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express'
 import authRoutes from './auth'
+import chatRoutes from './chat'
 import dataRoutes from './data'
 import followRoutes from './follow'
 import guestRoutes from './guest'
@@ -21,6 +22,7 @@ router.use('/follow', followRoutes)
 router.use('/notification', notificationRoutes)
 router.use('/story', storyRoutes)
 router.use('/post', postRoutes)
+router.use('/chat', chatRoutes)
 router.use('/data', dataRoutes)
 
 router.get('/health', (req, res) => {
